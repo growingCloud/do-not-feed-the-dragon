@@ -73,7 +73,7 @@ export default function TitleScreen({ onStart, difficulty = 'normal', timerOn = 
 
       <Codex />
 
-      <p className="title-foot">GGA · 선생님 예시 게임</p>
+      <p className="title-foot">Gen.G Global Academy - Game Design Class</p>
     </div>
   )
 }
