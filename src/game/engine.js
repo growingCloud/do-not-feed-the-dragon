@@ -52,6 +52,7 @@ export function createGame(difficulty = 'normal') {
     turnState: freshTurn(),
     totalTurns: 0,
     round: 1,
+    pendingDiscard: null, // player id owed a "hit exactly → discard 1" reward
     phase: 'playing', // 'playing' | 'gameover'
     winner: null, // player index, or array of indices for a tie
     log: [],
@@ -64,7 +65,7 @@ export function createGame(difficulty = 'normal') {
 
   // Flip the first satiety card → the dragon's starting appetite.
   flipSatiety(s)
-  pushLog(s, `게임 시작! 드래곤이 배고파요. 얼마나 먹을 수 있는지는 아무도 몰라요...`, 'system')
+  pushLog(s, `게임 시작! 드래곤은 최대 ${s.dragon.max}까지 먹을 수 있어요.`, 'system')
 
   return s
 }
@@ -125,10 +126,10 @@ export function currentPlayer(s) {
   return s.players[s.current]
 }
 export function canPlayFood(s) {
-  return s.turnState.foodPlayed < s.turnState.foodAllowed
+  return !s.pendingDiscard && s.turnState.foodPlayed < s.turnState.foodAllowed
 }
 export function canPlaySkill(s) {
-  return RULES.maxSkillsPerTurn === 0 || s.turnState.skillsPlayed < RULES.maxSkillsPerTurn
+  return !s.pendingDiscard && (RULES.maxSkillsPerTurn === 0 || s.turnState.skillsPlayed < RULES.maxSkillsPerTurn)
 }
 export function spaceLeft(s) {
   return s.dragon.max - s.dragon.current
@@ -156,7 +157,7 @@ export function playFood(s, cardId) {
     s.turnState.times2Pending = false
   }
   s.dragon.current += value
-  pushLog(s, `${p.name}: 먹이 ${card.value}${value !== card.value ? ` (×2 → ${value})` : ''} → 드래곤 포만감 ${s.dragon.current}`, p.isHuman ? 'me' : 'ai')
+  pushLog(s, `${p.name}: 먹이 ${card.value}${value !== card.value ? ` (×2 → ${value})` : ''} → 드래곤 포만감 ${Math.min(s.dragon.current, s.dragon.max)}${s.dragon.current > s.dragon.max ? `?! (${s.dragon.current})` : ''} / ${s.dragon.max}`, p.isHuman ? 'me' : 'ai')
 
   resolveDragon(s, p)
   if (s.phase === 'playing') checkEmptyHandWin(s, p)
@@ -187,11 +188,11 @@ export function playSkill(s, cardId) {
       break
     case 'minus2':
       s.dragon.current = Math.max(0, s.dragon.current - 2)
-      pushLog(s, `${p.name}: ${meta.name} — 포만감 ${s.dragon.current}`, p.isHuman ? 'me' : 'ai')
+      pushLog(s, `${p.name}: ${meta.name} — 포만감 ${s.dragon.current}/${s.dragon.max}`, p.isHuman ? 'me' : 'ai')
       break
     case 'digest':
       s.dragon.current = Math.max(0, s.dragon.current - 5)
-      pushLog(s, `${p.name}: ${meta.name} — 포만감 ${s.dragon.current}`, p.isHuman ? 'me' : 'ai')
+      pushLog(s, `${p.name}: ${meta.name} — 포만감 ${s.dragon.current}/${s.dragon.max}`, p.isHuman ? 'me' : 'ai')
       break
     case 'flip':
       s.direction *= -1
@@ -213,12 +214,17 @@ function resolveDragon(s, p) {
 
   if (s.dragon.current === s.dragon.max) {
     pushLog(s, `🐲 딱 맞게 배불러서 만족! 포만감이 리셋돼요.`, 'good')
+    // Reward for precision: discard 1 chosen card (only if the player has any left).
+    if (p.hand.length > 0) {
+      s.pendingDiscard = p.id
+      pushLog(s, `🎯 딱 맞춤 보상! ${p.name}는 카드 1장을 골라 버릴 수 있어요.`, 'good')
+    }
   } else {
     const drew = drawN(s, p, RULES.overflowPenalty)
     pushLog(s, `💥 포만감 초과! ${p.name}가 패널티로 ${drew}장을 뽑아요.`, 'bad')
   }
   flipSatiety(s)
-  pushLog(s, `🎴 새 포만감 카드 공개! 드래곤이 다시 배고파졌어요. (한계는 비밀)`, 'system')
+  pushLog(s, `새 포만감 카드: 드래곤 최대 ${s.dragon.max}`, 'system')
 }
 
 function checkEmptyHandWin(s, p) {
@@ -229,10 +235,31 @@ function checkEmptyHandWin(s, p) {
   }
 }
 
+// Spend the "hit exactly" reward: discard one chosen card from hand.
+export function discardReward(s, cardId) {
+  if (s.phase !== 'playing' || s.pendingDiscard === null) return
+  const p = currentPlayer(s)
+  if (s.pendingDiscard !== p.id) return
+  const idx = p.hand.findIndex((c) => c.id === cardId)
+  if (idx === -1) return
+  const [card] = p.hand.splice(idx, 1)
+  s.discardPile.push(card)
+  s.pendingDiscard = null
+  pushLog(s, `${p.name}: 딱 맞춤 보상으로 ${cardLabel(card)} 버림!`, p.isHuman ? 'me' : 'ai')
+  checkEmptyHandWin(s, p)
+}
+
+// Decline the reward (rarely useful, but keep it optional).
+export function skipDiscard(s) {
+  if (s.pendingDiscard === null) return
+  s.pendingDiscard = null
+}
+
 // End the current player's turn: apply the "no food" penalty, then the
 // per-turn draw, then advance to the next player and check round / game end.
 export function endTurn(s) {
   if (s.phase !== 'playing') return
+  if (s.pendingDiscard !== null) return // must resolve the discard reward first
   const p = currentPlayer(s)
 
   if (s.turnState.foodPlayed === 0 && RULES.noFoodPenalty > 0) {
@@ -251,6 +278,7 @@ export function endTurn(s) {
 
 function advance(s) {
   const n = s.players.length
+  s.pendingDiscard = null // safety: never carry a reward across turns
   s.current = ((s.current + s.direction) % n + n) % n
   s.turnState = freshTurn()
   s.round = Math.floor(s.totalTurns / n) + 1

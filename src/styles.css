@@ -257,6 +257,12 @@ body {
   background: var(--panel); border: 1px solid var(--line);
   border-radius: 12px; padding: 10px; color: var(--accent-2);
 }
+.turn-banner.banner-reward {
+  color: #0f2a1c; background: var(--good); border-color: var(--good);
+  animation: bubblePulse 0.7s ease-in-out infinite;
+}
+.hand-discard { outline: 2px dashed var(--good); outline-offset: 4px; border-radius: 12px; }
+.hand-discard .card.is-playable:hover { box-shadow: 0 0 0 3px var(--bad), 0 12px 26px rgba(0,0,0,0.5); }
 
 /* ---------- Log ---------- */
 .log-panel {

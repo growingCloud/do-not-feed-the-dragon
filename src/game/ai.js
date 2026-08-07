@@ -13,7 +13,20 @@
 //  - normal: the full base strategy above.
 //  - hard  : base strategy + always races to empty its hand.
 
-import { playFood, playSkill, endTurn, currentPlayer, canPlayFood, canPlaySkill, spaceLeft } from './engine.js'
+import { playFood, playSkill, endTurn, discardReward, skipDiscard, currentPlayer, canPlayFood, canPlaySkill, spaceLeft } from './engine.js'
+
+// Resolve a "hit exactly" reward: dump the biggest food (hardest to place later),
+// or any card if no food remains.
+function aiDiscard(s) {
+  const p = currentPlayer(s)
+  if (p.hand.length === 0) {
+    skipDiscard(s)
+    return
+  }
+  const foods = p.hand.filter((c) => c.type === 'food').sort((a, b) => b.value - a.value)
+  const target = foods[0] || p.hand[p.hand.length - 1]
+  discardReward(s, target.id)
+}
 
 const CONFIG = {
   easy: { useDoubleFeed: false, useTimes2Exact: false, makeRoom: false, foodPick: 'randomSafe', allowOverflow: true, dumpSkills: 'none' },
@@ -81,6 +94,7 @@ export function aiTakeTurn(s, difficulty = 'normal') {
 
     if (useTimes2) playSkill(s, skill('times2').id)
     playFood(s, choice.id)
+    if (s.pendingDiscard !== null && s.phase === 'playing') aiDiscard(s)
   }
 
   if (s.phase !== 'playing') return
