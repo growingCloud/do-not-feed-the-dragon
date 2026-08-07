@@ -13,7 +13,7 @@
 //  - normal: the full base strategy above.
 //  - hard  : base strategy + always races to empty its hand.
 
-import { playFood, playSkill, endTurn, currentPlayer, canPlayFood, spaceLeft } from './engine.js'
+import { playFood, playSkill, endTurn, currentPlayer, canPlayFood, canPlaySkill, spaceLeft } from './engine.js'
 
 const CONFIG = {
   easy: { useDoubleFeed: false, useTimes2Exact: false, makeRoom: false, foodPick: 'randomSafe', allowOverflow: true, dumpSkills: 'none' },
@@ -28,7 +28,7 @@ export function aiTakeTurn(s, difficulty = 'normal') {
   const skill = (key) => p.hand.find((c) => c.type === 'skill' && c.skill === key)
 
   // Set up a double-feed if there's clearly room to dump two foods.
-  if (cfg.useDoubleFeed && skill('doubleFeed') && foods().length >= 2 && spaceLeft(s) >= 2) {
+  if (cfg.useDoubleFeed && canPlaySkill(s) && skill('doubleFeed') && foods().length >= 2 && spaceLeft(s) >= 2) {
     playSkill(s, skill('doubleFeed').id)
   }
 
@@ -44,7 +44,7 @@ export function aiTakeTurn(s, difficulty = 'normal') {
     let useTimes2 = false
 
     // 1b. Exact hit using ×2.
-    if (!choice && cfg.useTimes2Exact && skill('times2')) {
+    if (!choice && cfg.useTimes2Exact && canPlaySkill(s) && skill('times2')) {
       const cand = myFoods.find((c) => c.value * 2 === sp)
       if (cand) {
         choice = cand
@@ -64,7 +64,7 @@ export function aiTakeTurn(s, difficulty = 'normal') {
 
     // 3/4. No safe food.
     if (!choice) {
-      if (cfg.makeRoom && sp < 5) {
+      if (cfg.makeRoom && sp < 5 && canPlaySkill(s)) {
         const reducer = skill('digest') || skill('minus2')
         if (reducer) {
           playSkill(s, reducer.id)
@@ -85,15 +85,17 @@ export function aiTakeTurn(s, difficulty = 'normal') {
 
   if (s.phase !== 'playing') return
 
-  // 5. Dump low-risk skills to shrink the hand.
+  // 5. Dump low-risk skills to shrink the hand (respecting the per-turn skill cap).
   if (cfg.dumpSkills !== 'none') {
     for (const c of p.hand.filter((c) => c.type === 'skill' && c.skill === 'flip')) {
+      if (!canPlaySkill(s)) break
       playSkill(s, c.id)
       if (s.phase !== 'playing') return
     }
     const race = cfg.dumpSkills === 'always' || (cfg.dumpSkills === 'race' && p.hand.length <= 3)
     if (race) {
       for (const c of p.hand.filter((c) => c.type === 'skill' && (c.skill === 'times2' || c.skill === 'doubleFeed'))) {
+        if (!canPlaySkill(s)) break
         playSkill(s, c.id)
         if (s.phase !== 'playing') return
       }

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { createGame, playFood, playSkill, endTurn, canPlayFood, spaceLeft } from './game/engine.js'
+import { createGame, playFood, playSkill, endTurn, canPlayFood, canPlaySkill, spaceLeft, RULES } from './game/engine.js'
 import { aiTakeTurn } from './game/ai.js'
 import { SKILLS } from './game/cards.js'
 import TitleScreen from './components/TitleScreen.jsx'
@@ -46,6 +46,7 @@ export default function App() {
   const me = game.players[0]
   const myTurn = game.current === 0 && game.phase === 'playing'
   const foodOk = myTurn && canPlayFood(game)
+  const skillOk = myTurn && canPlaySkill(game)
   const ts = game.turnState
 
   return (
@@ -75,6 +76,7 @@ export default function App() {
       <div className="my-area">
         <div className="my-status">
           <span className="chip">먹이 {ts.foodPlayed}/{ts.foodAllowed}</span>
+          <span className="chip">스킬 {ts.skillsPlayed}/{RULES.maxSkillsPerTurn === 0 ? '∞' : RULES.maxSkillsPerTurn}</span>
           {ts.times2Pending && <span className="chip chip-hot">×2 대기중</span>}
           <span className="chip">여유 {Math.max(spaceLeft(game), 0)}</span>
           <span className="chip">내 손패 {me.hand.length}장</span>
@@ -84,7 +86,7 @@ export default function App() {
           {me.hand.length === 0 && <div className="empty-hand">손패가 비었어요.</div>}
           {me.hand.map((card) => {
             const playable =
-              myTurn && (card.type === 'skill' ? true : foodOk)
+              myTurn && (card.type === 'skill' ? skillOk : foodOk)
             return (
               <Card
                 key={card.id}

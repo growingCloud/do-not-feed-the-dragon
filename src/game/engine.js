@@ -1,20 +1,32 @@
 // Game engine for "Do not feed the dragon".
 //
 // Design decisions locked with the user:
-//  - 드래곤 최대 포만감: 포만감 카드 6~10 중 1장을 공개 → 그게 이번 max.
+//  - 드래곤 최대 포만감: 포만감 카드 10~20 중 1장을 공개 → 그게 이번 max.
 //  - 누적합 == max  : 세이프. 포만감 리셋(0) + 새 포만감 카드 공개.
-//  - 누적합 >  max  : 낸 사람 3장 패널티 + 리셋 + 새 포만감 카드.
+//  - 누적합 >  max  : 낸 사람 패널티 + 리셋 + 새 포만감 카드.
 //  - 스킬: 두번먹이기(+1 먹이 허용) / ×2(다음 먹이 2배) / -2 / 뒤집기(방향 반전) / 소화(-5).
-//  - 턴에 먹이를 1장도 못 내면 패널티 1장.
-//  - 승리: 손패 먼저 소진 = 즉시 승리. 아니면 5라운드 후 손패 최소가 승리.
+//  - 턴에 먹이를 1장도 못 내면 패널티. 턴 종료 시 정해진 수만큼 드로우.
+//  - 승리: 손패 먼저 소진 = 즉시 승리. 아니면 N라운드 후 손패 최소가 승리.
 //
 // Engine functions MUTATE the passed state. The React layer clones (structuredClone)
 // before each call so state transitions stay immutable from React's point of view.
 
 import { buildMainDeck, buildSatietyDeck, shuffle, SKILLS, cardLabel } from './cards.js'
 
-export const ROUNDS_TO_END = 5
-export const START_HAND = 7
+// ---- Tunable rules -------------------------------------------------------
+// 여기 숫자만 바꾸면 게임 밸런스가 통째로 조정됩니다.
+export const RULES = {
+  startHand: 7,         // 시작 손패
+  drawPerTurn: 2,       // 턴 종료 시 자동 드로우 (0이면 없음)
+  maxSkillsPerTurn: 2,  // 턴당 스킬 최대 사용 수 (0이면 무제한)
+  baseFoodPerTurn: 1,   // 기본 먹이 허용 수 (두번먹이기가 +1)
+  roundsToEnd: 5,       // 몇 라운드 후 종료
+  noFoodPenalty: 1,     // 먹이 못 냈을 때 패널티 드로우
+  overflowPenalty: 3,   // 포만감 초과 시 패널티 드로우
+}
+
+export const ROUNDS_TO_END = RULES.roundsToEnd
+export const START_HAND = RULES.startHand
 
 const AI_NAMES = ['드래곤 훈련사 A', '드래곤 훈련사 B', '드래곤 훈련사 C']
 
@@ -47,7 +59,7 @@ export function createGame(difficulty = 'normal') {
 
   // Deal starting hands.
   for (const p of players) {
-    for (let i = 0; i < START_HAND; i++) drawOne(s, p)
+    for (let i = 0; i < RULES.startHand; i++) drawOne(s, p)
   }
 
   // Flip the first satiety card → the dragon's starting appetite.
@@ -58,7 +70,7 @@ export function createGame(difficulty = 'normal') {
 }
 
 function freshTurn() {
-  return { foodPlayed: 0, foodAllowed: 1, times2Pending: false }
+  return { foodPlayed: 0, foodAllowed: RULES.baseFoodPerTurn, times2Pending: false, skillsPlayed: 0 }
 }
 
 // ---- Logging -------------------------------------------------------------
@@ -113,6 +125,9 @@ export function currentPlayer(s) {
 export function canPlayFood(s) {
   return s.turnState.foodPlayed < s.turnState.foodAllowed
 }
+export function canPlaySkill(s) {
+  return RULES.maxSkillsPerTurn === 0 || s.turnState.skillsPlayed < RULES.maxSkillsPerTurn
+}
 export function spaceLeft(s) {
   return s.dragon.max - s.dragon.current
 }
@@ -152,9 +167,11 @@ export function playSkill(s, cardId) {
   if (idx === -1) return
   const card = p.hand[idx]
   if (card.type !== 'skill') return
+  if (!canPlaySkill(s)) return
 
   p.hand.splice(idx, 1)
   s.discardPile.push(card)
+  s.turnState.skillsPlayed++
   const meta = SKILLS[card.skill]
 
   switch (card.skill) {
@@ -192,7 +209,7 @@ function resolveDragon(s, p) {
   if (s.dragon.current === s.dragon.max) {
     pushLog(s, `🐲 딱 맞게 배불러서 만족! 포만감이 리셋돼요.`, 'good')
   } else {
-    const drew = drawN(s, p, 3)
+    const drew = drawN(s, p, RULES.overflowPenalty)
     pushLog(s, `💥 포만감 초과! ${p.name}가 패널티로 ${drew}장을 뽑아요.`, 'bad')
   }
   flipSatiety(s)
@@ -207,16 +224,20 @@ function checkEmptyHandWin(s, p) {
   }
 }
 
-// End the current player's turn: apply the "no food = draw 1" penalty,
-// then advance to the next player and check round / game end.
+// End the current player's turn: apply the "no food" penalty, then the
+// per-turn draw, then advance to the next player and check round / game end.
 export function endTurn(s) {
   if (s.phase !== 'playing') return
   const p = currentPlayer(s)
 
-  if (s.turnState.foodPlayed === 0) {
-    const drew = drawN(s, p, 1)
+  if (s.turnState.foodPlayed === 0 && RULES.noFoodPenalty > 0) {
+    const drew = drawN(s, p, RULES.noFoodPenalty)
     pushLog(s, `${p.name}: 먹이를 못 내서 패널티 ${drew}장.`, p.isHuman ? 'me' : 'ai')
-    // A penalty draw can't make you win, but hand is definitely non-empty now.
+  }
+
+  if (RULES.drawPerTurn > 0) {
+    const drew = drawN(s, p, RULES.drawPerTurn)
+    if (drew) pushLog(s, `${p.name}: 턴 종료 드로우 ${drew}장.`, p.isHuman ? 'me' : 'ai')
   }
 
   s.totalTurns++
