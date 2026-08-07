@@ -113,43 +113,75 @@ body {
 .round-pill { background: var(--panel); border: 1px solid var(--line); color: var(--accent-2); font-weight: 700; font-size: 13px; padding: 6px 12px; border-radius: 999px; }
 .round-pill-diff { color: var(--ink-dim); }
 
-/* ---------- Opponents ---------- */
-.opponents { display: flex; gap: 8px; align-items: stretch; flex-wrap: wrap; }
-.opp {
-  position: relative;
-  flex: 1 1 0;
-  min-width: 92px;
-  background: var(--panel);
+/* ---------- Game table (상하좌우 배치) ---------- */
+.table {
+  display: grid;
+  grid-template-columns: minmax(80px, 0.9fr) 1.7fr minmax(80px, 0.9fr);
+  grid-template-rows: auto minmax(150px, auto) auto;
+  grid-template-areas:
+    ".    top    ."
+    "left center right"
+    ".    bottom .";
+  gap: 8px;
+  align-items: center;
+  justify-items: center;
+  background:
+    radial-gradient(ellipse 60% 55% at 50% 50%, rgba(110, 231, 168, 0.10), transparent 70%),
+    linear-gradient(160deg, rgba(37, 26, 61, 0.5), rgba(21, 15, 33, 0.5));
   border: 1px solid var(--line);
-  border-radius: 14px;
-  padding: 10px 8px;
-  text-align: center;
-  transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+  border-radius: 22px;
+  padding: 12px 10px;
 }
-.opp-active { border-color: var(--accent-2); box-shadow: 0 0 0 2px rgba(255, 209, 102, 0.25); transform: translateY(-2px); }
-.opp-avatar { font-size: 24px; }
-.opp-name { font-size: 12px; color: var(--ink-dim); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.opp-cards { font-size: 13px; margin-top: 4px; }
-.opp-cardstack { margin-right: 3px; opacity: 0.8; }
-.opp-turn-dot { position: absolute; top: 8px; right: 8px; width: 8px; height: 8px; border-radius: 50%; background: var(--accent-2); box-shadow: 0 0 8px var(--accent-2); animation: pulse 1.1s infinite; }
-@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
-.dir-indicator { align-self: center; font-size: 12px; color: var(--ink-dim); padding: 0 4px; white-space: nowrap; }
 
-/* ---------- Dragon ---------- */
-.dragon-box {
-  display: flex; align-items: center; gap: 16px;
-  background: linear-gradient(135deg, var(--panel), var(--panel-2));
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  padding: 16px 18px;
-  box-shadow: var(--shadow);
-  transition: box-shadow 0.25s, border-color 0.25s;
+.seat {
+  position: relative;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 8px 10px;
+  border-radius: 14px;
+  border: 2px solid transparent;
+  transition: border-color 0.25s, background 0.25s, transform 0.25s, box-shadow 0.25s;
+  min-width: 78px;
 }
-.dragon-box.is-danger { border-color: var(--hot); box-shadow: 0 0 0 2px rgba(255, 82, 82, 0.3), var(--shadow); }
-.dragon-face { font-size: 56px; line-height: 1; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.4)); }
-.dragon-meter { flex: 1; }
+.seat-top { grid-area: top; }
+.seat-left { grid-area: left; }
+.seat-right { grid-area: right; }
+.seat-bottom { grid-area: bottom; }
+.seat-active {
+  border-color: var(--accent-2);
+  background: rgba(255, 209, 102, 0.12);
+  box-shadow: 0 0 0 3px rgba(255, 209, 102, 0.18), 0 6px 18px rgba(0, 0, 0, 0.35);
+  transform: translateY(-2px) scale(1.04);
+}
+.seat-avatar { font-size: 26px; line-height: 1; }
+.seat-active .seat-avatar { animation: bob 1.4s ease-in-out infinite; }
+.seat-name { font-size: 12px; color: var(--ink-dim); white-space: nowrap; }
+.seat-active .seat-name { color: var(--accent-2); font-weight: 700; }
+.seat-backs { height: 16px; display: flex; align-items: center; }
+.mini-back { font-size: 18px; color: #c9b8f0; filter: drop-shadow(0 1px 1px rgba(0,0,0,0.4)); }
+.seat-count { font-size: 12px; font-weight: 700; color: var(--ink); }
+.seat-turn-dot { position: absolute; top: 4px; right: 4px; width: 8px; height: 8px; border-radius: 50%; background: var(--accent-2); box-shadow: 0 0 8px var(--accent-2); animation: pulse 1.1s infinite; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+.table-center { grid-area: center; width: 100%; position: relative; display: flex; flex-direction: column; align-items: center; }
+.dir-badge {
+  position: absolute; top: -6px; right: 2px;
+  font-size: 16px; color: var(--ink-dim);
+  background: var(--panel); border: 1px solid var(--line); border-radius: 50%;
+  width: 26px; height: 26px; display: flex; align-items: center; justify-content: center;
+}
+
+/* ---------- Dragon (table center) ---------- */
+.dragon-box {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  width: 100%;
+  padding: 4px 6px;
+  transition: transform 0.2s;
+}
+.dragon-box.is-danger .dragon-face { filter: drop-shadow(0 0 14px rgba(255, 82, 82, 0.55)); }
+.dragon-face { font-size: 72px; line-height: 1; filter: drop-shadow(0 6px 14px rgba(0,0,0,0.45)); }
+.dragon-meter { width: 100%; max-width: 300px; text-align: center; }
 .meter-label { font-size: 14px; color: var(--ink-dim); margin-bottom: 6px; }
-.meter-label b { color: var(--ink); font-size: 20px; }
+.meter-label b { color: var(--ink); font-size: 22px; }
 .meter-track { position: relative; height: 18px; background: #1a1230; border-radius: 999px; overflow: hidden; border: 1px solid var(--line); }
 .meter-fill { height: 100%; background: linear-gradient(90deg, var(--good), var(--accent-2)); border-radius: 999px; transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1); }
 .meter-fill.hot { background: linear-gradient(90deg, var(--accent), var(--hot)); }

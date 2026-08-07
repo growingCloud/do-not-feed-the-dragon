@@ -3,13 +3,22 @@ import { createGame, playFood, playSkill, endTurn, canPlayFood, canPlaySkill, sp
 import { aiTakeTurn } from './game/ai.js'
 import { SKILLS } from './game/cards.js'
 import TitleScreen from './components/TitleScreen.jsx'
-import Dragon from './components/Dragon.jsx'
 import Card from './components/Card.jsx'
-import OpponentRow from './components/OpponentRow.jsx'
+import GameTable from './components/GameTable.jsx'
 import LogPanel from './components/LogPanel.jsx'
 import GameOver from './components/GameOver.jsx'
 
-const AI_DELAY = 950 // ms between AI moves so the human can follow along
+const AI_DELAY = 1500 // ms between AI moves — linger so the turn is easy to follow
+
+// Show the hand tidy: food first (by value), then skills grouped.
+function sortHand(hand) {
+  const rank = (c) => (c.type === 'food' ? 0 : 1)
+  return [...hand].sort((a, b) => {
+    if (rank(a) !== rank(b)) return rank(a) - rank(b)
+    if (a.type === 'food') return a.value - b.value
+    return a.skill.localeCompare(b.skill)
+  })
+}
 
 const DIFF_LABEL = { easy: '쉬움', normal: '보통', hard: '어려움' }
 
@@ -91,9 +100,12 @@ export default function App() {
         </div>
       </header>
 
-      <OpponentRow players={game.players} current={game.current} direction={game.direction} />
-
-      <Dragon dragon={game.dragon} />
+      <GameTable
+        players={game.players}
+        activeId={game.phase === 'playing' ? game.current : -1}
+        direction={game.direction}
+        dragon={game.dragon}
+      />
 
       <div className="turn-banner">
         {game.phase === 'gameover'
@@ -116,7 +128,7 @@ export default function App() {
 
         <div className="hand">
           {me.hand.length === 0 && <div className="empty-hand">손패가 비었어요.</div>}
-          {me.hand.map((card) => {
+          {sortHand(me.hand).map((card) => {
             const playable =
               myTurn && (card.type === 'skill' ? skillOk : foodOk)
             return (
