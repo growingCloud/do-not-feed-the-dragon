@@ -10,13 +10,17 @@ const FLOW = {
   '-1': { 0: '↖', 1: '↙', 2: '↘', 3: '↗' },
 }
 
+// Up to 5 card icons in a single row; anything beyond shows as "+N" so the
+// pile height stays fixed no matter how many cards a player holds.
 function CardPile({ count }) {
-  const shown = Math.min(count, 20)
+  const icons = Math.min(count, 5)
+  const extra = count - icons
   return (
     <div className="pile" aria-hidden="true">
-      {Array.from({ length: shown }).map((_, i) => (
+      {Array.from({ length: icons }).map((_, i) => (
         <span key={i} className="pile-card" />
       ))}
+      {extra > 0 && <span className="pile-extra">+{extra}</span>}
     </div>
   )
 }

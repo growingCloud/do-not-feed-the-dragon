@@ -230,15 +230,18 @@ body {
 .seat-active .seat-name { color: var(--accent-2); font-weight: 700; }
 .seat-count { font-size: 13px; font-weight: 800; color: var(--ink); }
 
-/* Card-count pile: card-shaped icons, 5 per row */
-.pile { display: flex; flex-wrap: wrap; gap: 3px; width: 63px; justify-content: center; }
+/* Card-count pile: up to 5 card icons in one row, then "+N" (fixed height) */
+.pile { display: flex; flex-wrap: nowrap; gap: 3px; justify-content: center; align-items: center; min-height: 13px; }
 .pile-card {
+  flex: 0 0 auto;
   width: 9px; height: 13px; border-radius: 2px;
   background: linear-gradient(160deg, #b8a6ff, #7d6ce0);
   border: 1px solid rgba(255, 255, 255, 0.25);
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.35);
 }
 .seat-active .pile-card { background: linear-gradient(160deg, #ffe08a, #ffb15c); }
+.pile-extra { font-size: 11px; font-weight: 800; color: var(--ink-dim); margin-left: 1px; }
+.seat-active .pile-extra { color: var(--accent-2); }
 
 /* Turn-flow arrow (glows on the active seat toward the next player) */
 .flow-arrow { font-size: 16px; line-height: 1; color: var(--line); height: 16px; transition: color 0.2s; }
@@ -483,7 +486,7 @@ body {
   .seat-avatar { font-size: 24px; }
   .seat-name { font-size: 11px; }
   .seat-count { font-size: 12px; }
-  .pile { width: 50px; gap: 2px; }
+  .pile { gap: 2px; }
   .pile-card { width: 8px; height: 11px; }
   .next-badge { font-size: 9px; padding: 1px 7px; top: -8px; }
   .dragon-face { font-size: 62px; }
