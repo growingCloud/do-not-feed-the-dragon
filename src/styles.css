@@ -314,8 +314,6 @@ body {
 .card-small { width: 52px; height: 74px; }
 .card-food { background: linear-gradient(160deg, #ffe08a, #ffb15c); }
 .card-skill { background: linear-gradient(160deg, #b8a6ff, #8b7be8); color: #1c1330; }
-.skill-digest { background: linear-gradient(160deg, #7ef0c0, #37c98f); }
-.skill-flip { background: linear-gradient(160deg, #9fd0ff, #5aa9f0); }
 .card.is-playable:hover { transform: translateY(-8px) scale(1.03); box-shadow: 0 12px 26px rgba(0,0,0,0.5); }
 .card.is-locked { filter: grayscale(0.35) brightness(0.82); cursor: not-allowed; }
 .card-emoji { font-size: 22px; }

@@ -9,11 +9,11 @@ const nextId = () => `c${_id++}`
 
 // ---- Skill card metadata -------------------------------------------------
 export const SKILLS = {
-  doubleFeed: { key: 'doubleFeed', name: '두번먹이기', emoji: '🍽️', desc: '이번 턴에 먹이를 2장까지 낼 수 있어요.' },
-  times2:     { key: 'times2',     name: '×2',       emoji: '✖️', desc: '이번 턴에 내는 다음 먹이 숫자를 2배로.' },
-  minus2:     { key: 'minus2',     name: '-2',       emoji: '🔽', desc: '드래곤의 현재 포만감을 2 줄여요.' },
-  flip:       { key: 'flip',       name: '뒤집기',    emoji: '🔄', desc: '턴 진행 방향을 반대로 바꿔요.' },
-  digest:     { key: 'digest',     name: '소화',      emoji: '💨', desc: '드래곤의 현재 포만감을 5 줄여요. (최강)' },
+  doubleFeed: { key: 'doubleFeed', name: '먹이 한번 더', emoji: '🍽️', desc: '이번 턴에 먹이를 한 번 더 낼 수 있어요.' },
+  times2:     { key: 'times2',     name: '먹이 양 ×2', emoji: '✖️', desc: '다음에 내는 먹이 숫자를 2배로.' },
+  minus2:     { key: 'minus2',     name: '-2',        emoji: '🔽', desc: '드래곤의 현재 포만감을 2 줄여요.' },
+  flip:       { key: 'flip',       name: '뒤집기',     emoji: '🔄', desc: '턴 진행 방향을 반대로 바꿔요.' },
+  digest:     { key: 'digest',     name: '-5',        emoji: '🔽', desc: '드래곤의 현재 포만감을 5 줄여요.' },
 }
 
 // ---- Main deck -----------------------------------------------------------
