@@ -30,6 +30,7 @@ export default function App() {
   const [difficulty, setDifficulty] = useState('normal')
   const [timerOn, setTimerOn] = useState(false)
   const [timeLeft, setTimeLeft] = useState(TIMER_SECONDS)
+  const [infoOpen, setInfoOpen] = useState(false)
 
   // Undo bookkeeping (kept in refs so restoring state doesn't wipe it).
   const snapshotRef = useRef(null) // { turn, state } captured at the human turn's start
@@ -88,12 +89,13 @@ export default function App() {
     if (isMyTurn && timerOn) setTimeLeft(TIMER_SECONDS)
   }, [game?.totalTurns, isMyTurn, timerOn])
 
-  // Timer: tick down once per second during the human's turn.
+  // Timer: tick down once per second during the human's turn (paused while the
+  // info modal is open).
   useEffect(() => {
-    if (!isMyTurn || !timerOn || timeLeft <= 0) return
+    if (!isMyTurn || !timerOn || timeLeft <= 0 || infoOpen) return
     const id = setTimeout(() => setTimeLeft((t) => t - 1), 1000)
     return () => clearTimeout(id)
-  }, [isMyTurn, timerOn, timeLeft])
+  }, [isMyTurn, timerOn, timeLeft, infoOpen])
 
   // Timer: auto-end the turn on timeout (guarded so it fires once per turn).
   useEffect(() => {
@@ -264,24 +266,38 @@ export default function App() {
         ) : (
           <div className="controls">
             <button className="btn btn-primary" disabled={!myTurn} onClick={() => mutate((s) => endTurn(s))}>
-              턴 종료 {myTurn && ts.foodPlayed === 0 ? '(먹이 안 냄 → 패널티 1장)' : ''}
+              턴 종료 {myTurn && ts.foodPlayed === 0 ? `(패널티 ${RULES.noFoodPenalty}장)` : ''}
             </button>
             <button className="btn btn-undo" disabled={!canUndo} onClick={undo}>
               ↩︎ 실행 취소
             </button>
-            <span
-              className="info-dot"
-              tabIndex={0}
-              title="실행 취소는 턴당 1회 쓸 수 있어요. 드래곤 포만감이 바뀌면(딱 맞춤 리셋 · 초과) 그 턴에는 더 이상 되돌릴 수 없어요."
-            >
+            <button className="info-dot" onClick={() => setInfoOpen(true)} title="실행 취소 안내">
               i
-            </span>
+            </button>
           </div>
         )}
       </div>
 
       {game.phase === 'gameover' && (
         <GameOver game={game} onRestart={() => startGame(game.difficulty, timerOn)} onHome={() => setGame(null)} />
+      )}
+
+      {infoOpen && (
+        <div className="overlay" onClick={() => setInfoOpen(false)}>
+          <div className="overlay-card info-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="overlay-emoji">↩︎</div>
+            <h2 className="overlay-title">실행 취소</h2>
+            <ul className="info-list">
+              <li>이번 턴에 낸 카드를 <b>턴당 1회</b> 되돌릴 수 있어요.</li>
+              <li>단, 드래곤 포만감이 <b>바뀌면(딱 맞춤 리셋 · 초과)</b> 그 턴에는 더 이상 되돌릴 수 없어요.</li>
+              <li>즉 <b>위험한 선택</b>은 무를 수 없고, <b>단순 실수</b>만 되돌릴 수 있어요.</li>
+              {timerOn && <li>이 안내를 보는 동안 <b>타이머는 멈춰요.</b></li>}
+            </ul>
+            <div className="overlay-actions">
+              <button className="btn btn-primary" onClick={() => setInfoOpen(false)}>확인</button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )

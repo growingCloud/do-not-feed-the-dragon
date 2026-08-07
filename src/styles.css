@@ -364,13 +364,20 @@ body {
 .btn-undo { background: var(--panel-2); color: var(--ink); border: 1px solid var(--line); white-space: nowrap; }
 .btn-undo:hover:not(:disabled) { border-color: var(--accent-2); color: var(--accent-2); }
 .info-dot {
-  flex: 0 0 auto; width: 28px; height: 28px; align-self: center;
+  flex: 0 0 auto; width: 40px; height: 40px; align-self: center; padding: 0;
   display: inline-flex; align-items: center; justify-content: center;
   border-radius: 50%; border: 1px solid var(--line); background: var(--panel);
-  color: var(--ink-dim); font-size: 13px; font-weight: 800; font-style: italic;
-  cursor: help; user-select: none;
+  color: var(--ink-dim); font-size: 15px; font-weight: 800; font-style: italic;
+  font-family: inherit; cursor: pointer; user-select: none;
+  transition: color 0.15s, border-color 0.15s;
 }
 .info-dot:hover { color: var(--accent-2); border-color: var(--accent-2); }
+
+/* Info modal */
+.info-modal { text-align: left; max-width: 420px; }
+.info-modal .overlay-emoji, .info-modal .overlay-title { text-align: center; }
+.info-list { margin: 4px 0 20px; padding-left: 18px; color: var(--ink-dim); font-size: 14px; line-height: 1.7; }
+.info-list b { color: var(--ink); }
 
 /* ---------- Game over overlay ---------- */
 .overlay {
