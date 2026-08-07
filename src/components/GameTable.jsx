@@ -25,7 +25,10 @@ function Seat({ player, active, isNext, direction }) {
   const isMe = player.isHuman
   const arrow = FLOW[String(direction)]?.[player.id] ?? '→'
   return (
-    <div className={`seat seat-${SEAT_OF[player.id]} ${active ? 'seat-active' : ''} ${isNext ? 'seat-next' : ''}`}>
+    <div
+      data-player={player.id}
+      className={`seat seat-${SEAT_OF[player.id]} ${active ? 'seat-active' : ''} ${isNext ? 'seat-next' : ''}`}
+    >
       {isNext && <div className="next-badge">다음</div>}
       <div className="seat-head">
         <span className="seat-avatar">{isMe ? '🧑' : active ? '🧑‍🚀' : '🧑'}</span>
@@ -40,7 +43,7 @@ function Seat({ player, active, isNext, direction }) {
   )
 }
 
-export default function GameTable({ players, activeId, direction, dragon }) {
+export default function GameTable({ players, activeId, direction, dragon, reaction }) {
   const n = players.length
   const nextId = activeId >= 0 ? ((activeId + direction) % n + n) % n : -1
 
@@ -56,7 +59,7 @@ export default function GameTable({ players, activeId, direction, dragon }) {
         />
       ))}
       <div className="table-center">
-        <Dragon dragon={dragon} />
+        <Dragon dragon={dragon} reaction={reaction} />
       </div>
     </div>
   )

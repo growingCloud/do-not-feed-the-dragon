@@ -53,6 +53,9 @@ export function createGame(difficulty = 'normal') {
     totalTurns: 0,
     round: 1,
     pendingDiscard: null, // player id owed a "hit exactly → discard 1" reward
+    playSeq: 0, // increments on each card play (drives fly animation)
+    lastPlay: null, // { seq, playerId, type, value|skill }
+    dragonEvent: null, // { seq, type: 'reset' | 'overflow' }
     phase: 'playing', // 'playing' | 'gameover'
     winner: null, // player index, or array of indices for a tie
     log: [],
@@ -162,6 +165,7 @@ export function playFood(s, cardId) {
   p.hand.splice(idx, 1)
   s.discardPile.push(card)
   s.turnState.foodPlayed++
+  s.lastPlay = { seq: ++s.playSeq, playerId: p.id, type: 'food', value: card.value }
 
   let value = card.value
   if (s.turnState.times2Pending) {
@@ -187,6 +191,7 @@ export function playSkill(s, cardId) {
   p.hand.splice(idx, 1)
   s.discardPile.push(card)
   s.turnState.skillsPlayed++
+  s.lastPlay = { seq: ++s.playSeq, playerId: p.id, type: 'skill', skill: card.skill }
   const meta = SKILLS[card.skill]
 
   switch (card.skill) {
@@ -223,6 +228,11 @@ function resolveDragon(s, p) {
 
   // The dragon "reacted" — lock undo for the rest of this turn.
   s.turnState.dragonTriggered = true
+
+  s.dragonEvent = {
+    seq: ++s.playSeq,
+    type: s.dragon.current === s.dragon.max ? 'reset' : 'overflow',
+  }
 
   if (s.dragon.current === s.dragon.max) {
     pushLog(s, `🐲 딱 맞게 배불러서 만족! 포만감이 리셋돼요.`, 'good')

@@ -406,6 +406,53 @@ body {
 .overlay-actions { display: flex; gap: 10px; }
 .overlay-actions .btn { flex: 1; }
 
+/* ---------- Animations (연출) ---------- */
+/* Card flying from a seat to the dragon */
+.flyer {
+  position: fixed; z-index: 60; pointer-events: none;
+  width: 40px; height: 56px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; font-weight: 900; color: #241a12;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5); border: 2px solid rgba(255,255,255,0.25);
+  animation: fly 0.6s cubic-bezier(0.5, 0, 0.4, 1) forwards;
+}
+@keyframes fly {
+  0% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
+  70% { opacity: 1; }
+  100% { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(0.35) rotate(20deg); opacity: 0; }
+}
+
+/* Dragon reactions */
+.dragon-face { position: relative; }
+.react-pop { animation: dragonPop 0.6s ease; }
+@keyframes dragonPop { 0%, 100% { transform: scale(1); } 35% { transform: scale(1.25) translateY(-6px); } }
+.react-burst { animation: dragonBurst 0.5s ease; }
+@keyframes dragonBurst {
+  0% { transform: scale(1) rotate(0); } 20% { transform: scale(1.15) rotate(-6deg); }
+  40% { transform: scale(1.1) rotate(6deg); } 60% { transform: scale(1.12) rotate(-4deg); } 100% { transform: scale(1) rotate(0); }
+}
+.burst {
+  position: absolute; top: -8px; left: 50%; transform: translateX(-50%);
+  font-size: 40px; pointer-events: none; animation: burstPop 0.6s ease forwards;
+}
+@keyframes burstPop {
+  0% { transform: translateX(-50%) scale(0.2); opacity: 0; }
+  30% { transform: translateX(-50%) scale(1.3); opacity: 1; }
+  100% { transform: translate(-50%, -26px) scale(1); opacity: 0; }
+}
+
+/* Screen shake on overflow */
+.app.shake { animation: shake 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97); }
+@keyframes shake {
+  10%, 90% { transform: translateX(-2px); } 20%, 80% { transform: translateX(4px); }
+  30%, 50%, 70% { transform: translateX(-7px); } 40%, 60% { transform: translateX(7px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flyer, .react-pop, .react-burst, .burst, .app.shake { animation: none; }
+  .flyer { opacity: 0; }
+}
+
 @media (max-width: 420px) {
   .title-main { font-size: 24px; }
   .card { width: 62px; height: 88px; }

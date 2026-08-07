@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { createGame, playFood, playSkill, endTurn, discardReward, skipDiscard, canPlayFood, canPlaySkill, RULES } from './game/engine.js'
 import { aiTakeTurn } from './game/ai.js'
-import { SKILLS } from './game/cards.js'
+import { SKILLS, SKILL_COUNTS } from './game/cards.js'
+
+const SKILL_ORDER = Object.keys(SKILL_COUNTS)
 import TitleScreen from './components/TitleScreen.jsx'
 import Card from './components/Card.jsx'
 import GameTable from './components/GameTable.jsx'
@@ -17,7 +19,7 @@ function sortHand(hand) {
   return [...hand].sort((a, b) => {
     if (rank(a) !== rank(b)) return rank(a) - rank(b)
     if (a.type === 'food') return a.value - b.value
-    return a.skill.localeCompare(b.skill)
+    return SKILL_ORDER.indexOf(a.skill) - SKILL_ORDER.indexOf(b.skill)
   })
 }
 
@@ -106,6 +108,37 @@ export default function App() {
     }
   }, [timeLeft, isMyTurn, timerOn])
 
+  // Animation: a card flies from the player's seat to the dragon on each play.
+  const [flyers, setFlyers] = useState([])
+  useEffect(() => {
+    const lp = game?.lastPlay
+    if (!lp?.seq) return
+    const fromEl = document.querySelector(`[data-player="${lp.playerId}"]`)
+    const toEl = document.querySelector('.dragon-face')
+    if (!fromEl || !toEl) return
+    const f = fromEl.getBoundingClientRect()
+    const t = toEl.getBoundingClientRect()
+    const flyer = {
+      id: lp.seq,
+      play: lp,
+      from: { x: f.x + f.width / 2, y: f.y + f.height / 2 },
+      to: { x: t.x + t.width / 2, y: t.y + t.height / 2 },
+    }
+    setFlyers((prev) => (prev.some((x) => x.id === flyer.id) ? prev : [...prev, flyer]))
+    const timer = setTimeout(() => setFlyers((prev) => prev.filter((x) => x.id !== flyer.id)), 650)
+    return () => clearTimeout(timer)
+  }, [game?.lastPlay?.seq])
+
+  // Animation: dragon reacts (satisfied bounce / angry burst + screen shake).
+  const [reaction, setReaction] = useState(null)
+  useEffect(() => {
+    const de = game?.dragonEvent
+    if (!de?.seq) return
+    setReaction(de)
+    const t = setTimeout(() => setReaction((r) => (r?.seq === de.seq ? null : r)), 700)
+    return () => clearTimeout(t)
+  }, [game?.dragonEvent?.seq])
+
   if (!game) return <TitleScreen difficulty={difficulty} timerOn={timerOn} onStart={startGame} />
 
   const me = game.players[0]
@@ -127,7 +160,22 @@ export default function App() {
     undoTurnRef.current !== game.totalTurns
 
   return (
-    <div className="app">
+    <div className={`app ${reaction?.type === 'overflow' ? 'shake' : ''}`}>
+      {flyers.map((fl) => {
+        const dx = fl.to.x - fl.from.x
+        const dy = fl.to.y - fl.from.y
+        const isFood = fl.play.type === 'food'
+        return (
+          <div
+            key={fl.id}
+            className={`flyer ${isFood ? 'card-food' : 'card-skill'}`}
+            style={{ left: fl.from.x, top: fl.from.y, '--dx': `${dx}px`, '--dy': `${dy}px` }}
+          >
+            {isFood ? fl.play.value : SKILLS[fl.play.skill].emoji}
+          </div>
+        )
+      })}
+
       <header className="topbar">
         <button className="home-btn" onClick={() => setGame(null)} title="메인 화면으로">
           ← 메인
@@ -143,6 +191,7 @@ export default function App() {
         activeId={game.phase === 'playing' ? game.current : -1}
         direction={game.direction}
         dragon={game.dragon}
+        reaction={reaction}
       />
 
       <div className={`turn-banner ${discardMode ? 'banner-reward' : ''}`}>

@@ -1,5 +1,6 @@
-export default function Dragon({ dragon }) {
+export default function Dragon({ dragon, reaction }) {
   const { current, max } = dragon
+  const reactClass = reaction?.type === 'overflow' ? 'react-burst' : reaction?.type === 'reset' ? 'react-pop' : ''
   const pct = max > 0 ? Math.min(100, (current / max) * 100) : 0
   const danger = max > 0 && current >= max - 2
   const full = current >= max && max > 0
@@ -17,7 +18,11 @@ export default function Dragon({ dragon }) {
       <div className={`dragon-bubble ${danger ? 'bubble-danger' : ''}`}>
         <span className="bubble-emoji">{mood}</span>
       </div>
-      <div className="dragon-face">🐲</div>
+      <div className={`dragon-face ${reactClass}`}>
+        🐲
+        {reaction?.type === 'overflow' && <span className="burst">💥</span>}
+        {reaction?.type === 'reset' && <span className="burst sparkle">✨</span>}
+      </div>
       <div className="dragon-meter">
         <div className="meter-label">
           포만감 <b>{current}</b> / {max}
