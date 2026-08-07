@@ -17,7 +17,13 @@ export default function App() {
   const [game, setGame] = useState(null)
   const [difficulty, setDifficulty] = useState('normal')
 
+  // Undo bookkeeping (kept in refs so restoring state doesn't wipe it).
+  const snapshotRef = useRef(null) // { turn, state } captured at the human turn's start
+  const undoTurnRef = useRef(null) // the totalTurns value for which undo was already used
+
   function startGame(diff) {
+    snapshotRef.current = null
+    undoTurnRef.current = null
     setDifficulty(diff)
     setGame(createGame(diff))
   }
@@ -41,6 +47,23 @@ export default function App() {
     return () => clearTimeout(t)
   }, [game])
 
+  // Snapshot the state at the very start of each human turn (for undo).
+  useEffect(() => {
+    if (!game || game.phase !== 'playing') return
+    if (game.current !== 0) return
+    const ts = game.turnState
+    if (ts.foodPlayed === 0 && ts.skillsPlayed === 0 && snapshotRef.current?.turn !== game.totalTurns) {
+      snapshotRef.current = { turn: game.totalTurns, state: structuredClone(game) }
+    }
+  }, [game])
+
+  function undo() {
+    const snap = snapshotRef.current
+    if (!snap || !game || snap.turn !== game.totalTurns) return
+    undoTurnRef.current = game.totalTurns
+    setGame(structuredClone(snap.state))
+  }
+
   if (!game) return <TitleScreen difficulty={difficulty} onStart={startGame} />
 
   const me = game.players[0]
@@ -48,6 +71,15 @@ export default function App() {
   const foodOk = myTurn && canPlayFood(game)
   const skillOk = myTurn && canPlaySkill(game)
   const ts = game.turnState
+
+  const playedThisTurn = ts.foodPlayed > 0 || ts.skillsPlayed > 0
+  const snap = snapshotRef.current
+  const canUndo =
+    myTurn &&
+    playedThisTurn &&
+    !ts.dragonTriggered &&
+    snap?.turn === game.totalTurns &&
+    undoTurnRef.current !== game.totalTurns
 
   return (
     <div className="app">
@@ -104,6 +136,14 @@ export default function App() {
         </div>
 
         <div className="controls">
+          <button
+            className="btn btn-undo"
+            disabled={!canUndo}
+            title={ts.dragonTriggered ? '드래곤이 반응한 뒤로는 되돌릴 수 없어요.' : '이번 턴에 낸 카드를 되돌려요. (턴당 1회)'}
+            onClick={undo}
+          >
+            ↩︎ 실행 취소
+          </button>
           <button className="btn btn-primary" disabled={!myTurn} onClick={() => mutate((s) => endTurn(s))}>
             턴 종료 {myTurn && ts.foodPlayed === 0 ? '(먹이 안 냄 → 패널티 1장)' : ''}
           </button>

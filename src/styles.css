@@ -224,6 +224,8 @@ body {
 /* ---------- Controls ---------- */
 .controls { display: flex; gap: 10px; }
 .controls .btn-primary { flex: 1; }
+.btn-undo { background: var(--panel-2); color: var(--ink); border: 1px solid var(--line); white-space: nowrap; }
+.btn-undo:hover:not(:disabled) { border-color: var(--accent-2); color: var(--accent-2); }
 
 /* ---------- Game over overlay ---------- */
 .overlay {

@@ -70,7 +70,9 @@ export function createGame(difficulty = 'normal') {
 }
 
 function freshTurn() {
-  return { foodPlayed: 0, foodAllowed: RULES.baseFoodPerTurn, times2Pending: false, skillsPlayed: 0 }
+  // dragonTriggered: 이번 턴에 드래곤이 리셋/초과로 "반응"했는지.
+  // 반응한 뒤로는 무작위(드로우·새 포만감)가 공개되므로 실행 취소를 잠급니다.
+  return { foodPlayed: 0, foodAllowed: RULES.baseFoodPerTurn, times2Pending: false, skillsPlayed: 0, dragonTriggered: false }
 }
 
 // ---- Logging -------------------------------------------------------------
@@ -206,6 +208,9 @@ export function playSkill(s, cardId) {
 function resolveDragon(s, p) {
   if (s.dragon.current < s.dragon.max) return
 
+  // The dragon "reacted" — lock undo for the rest of this turn.
+  s.turnState.dragonTriggered = true
+
   if (s.dragon.current === s.dragon.max) {
     pushLog(s, `🐲 딱 맞게 배불러서 만족! 포만감이 리셋돼요.`, 'good')
   } else {
@@ -255,13 +260,30 @@ function advance(s) {
   }
 }
 
+// Sum of remaining FOOD card values in a hand — the tiebreaker weight.
+export function foodSum(player) {
+  return player.hand.reduce((a, c) => a + (c.type === 'food' ? c.value : 0), 0)
+}
+
 function endByRounds(s) {
-  const min = Math.min(...s.players.map((p) => p.hand.length))
-  const winners = s.players.filter((p) => p.hand.length === min).map((p) => p.id)
+  const minCount = Math.min(...s.players.map((p) => p.hand.length))
+  let contenders = s.players.filter((p) => p.hand.length === minCount)
+
+  // Tiebreaker (a): fewest cards → smallest sum of remaining food values wins.
+  let tiebroken = false
+  if (contenders.length > 1) {
+    const minSum = Math.min(...contenders.map(foodSum))
+    const narrowed = contenders.filter((p) => foodSum(p) === minSum)
+    if (narrowed.length < contenders.length) tiebroken = true
+    contenders = narrowed
+  }
+
+  const winners = contenders.map((p) => p.id)
   s.phase = 'gameover'
   s.winner = winners.length === 1 ? winners[0] : winners
   const names = winners.map((id) => s.players[id].name).join(', ')
-  pushLog(s, `⏱️ ${ROUNDS_TO_END}라운드 종료! 손패 최소(${min}장): ${names} 승리!`, 'win')
+  const tb = tiebroken ? ' (동점 → 먹이 숫자 합 최소로 판정)' : ''
+  pushLog(s, `⏱️ ${ROUNDS_TO_END}라운드 종료! 손패 최소(${minCount}장)${tb}: ${names} 승리!`, 'win')
 }
 
 export { cardLabel }

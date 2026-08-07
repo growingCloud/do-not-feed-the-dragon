@@ -1,9 +1,14 @@
+import { foodSum } from '../game/engine.js'
+
 export default function GameOver({ game, onRestart, onHome }) {
   const winners = Array.isArray(game.winner) ? game.winner : [game.winner]
   const iWon = winners.includes(0)
   const names = winners.map((id) => game.players[id].name).join(', ')
 
-  const standings = [...game.players].sort((a, b) => a.hand.length - b.hand.length)
+  // Rank by fewest cards, then by smallest food-value sum (the tiebreaker).
+  const standings = [...game.players].sort(
+    (a, b) => a.hand.length - b.hand.length || foodSum(a) - foodSum(b),
+  )
 
   return (
     <div className="overlay">
@@ -19,7 +24,7 @@ export default function GameOver({ game, onRestart, onHome }) {
             <div key={p.id} className={`standing ${winners.includes(p.id) ? 'is-winner' : ''}`}>
               <span className="standing-rank">{i + 1}</span>
               <span className="standing-name">{p.name}</span>
-              <span className="standing-cards">손패 {p.hand.length}장</span>
+              <span className="standing-cards">손패 {p.hand.length}장 · 먹이합 {foodSum(p)}</span>
             </div>
           ))}
         </div>
