@@ -63,7 +63,7 @@ export default function GameTable({ players, activeId, direction, dragon, reacti
         />
       ))}
       <div className="table-center">
-        <Dragon dragon={dragon} reaction={reaction} />
+        <Dragon dragon={dragon} reaction={reaction} direction={direction} />
       </div>
     </div>
   )

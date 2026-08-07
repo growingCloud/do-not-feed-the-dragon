@@ -281,7 +281,11 @@ body {
 @keyframes bubblePulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
 .bubble-emoji { font-size: 16px; }
 .dragon-box.is-danger .dragon-face { filter: drop-shadow(0 0 14px rgba(255, 82, 82, 0.55)); }
+.dragon-facerow { display: flex; align-items: center; justify-content: center; gap: 10px; }
 .dragon-face { font-size: 72px; line-height: 1; filter: drop-shadow(0 6px 14px rgba(0,0,0,0.45)); }
+/* Turn-direction arrows beside the dragon — mobile only (desktop uses seat flow arrows) */
+.dir-arrow { display: none; font-size: 30px; font-weight: 900; color: var(--line); line-height: 1; transition: color 0.25s, text-shadow 0.25s; }
+.dir-arrow.dir-on { color: var(--good); text-shadow: 0 0 12px var(--good); }
 .dragon-meter { width: 100%; max-width: 300px; text-align: center; }
 .meter-label { font-size: 14px; color: var(--ink-dim); margin-bottom: 6px; }
 .meter-label b { color: var(--ink); font-size: 22px; }
@@ -490,6 +494,7 @@ body {
   .pile-card { width: 8px; height: 11px; }
   .next-badge { font-size: 9px; padding: 1px 7px; top: -8px; }
   .dragon-face { font-size: 62px; }
+  .dir-arrow { display: block; }
   .my-status { gap: 5px; }
   .chip { font-size: 11px; padding: 4px 8px; }
 }

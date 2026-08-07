@@ -1,4 +1,4 @@
-export default function Dragon({ dragon, reaction }) {
+export default function Dragon({ dragon, reaction, direction = 1 }) {
   const { current, max } = dragon
   const reactClass = reaction?.type === 'overflow' ? 'react-burst' : reaction?.type === 'reset' ? 'react-pop' : ''
   const pct = max > 0 ? Math.min(100, (current / max) * 100) : 0
@@ -18,10 +18,14 @@ export default function Dragon({ dragon, reaction }) {
       <div className={`dragon-bubble ${danger ? 'bubble-danger' : ''}`}>
         <span className="bubble-emoji">{mood}</span>
       </div>
-      <div className={`dragon-face ${reactClass}`}>
-        🐲
-        {reaction?.type === 'overflow' && <span className="burst">💥</span>}
-        {reaction?.type === 'reset' && <span className="burst sparkle">✨</span>}
+      <div className="dragon-facerow">
+        <span className={`dir-arrow ${direction === -1 ? 'dir-on' : ''}`} aria-hidden="true">◀</span>
+        <div className={`dragon-face ${reactClass}`}>
+          🐲
+          {reaction?.type === 'overflow' && <span className="burst">💥</span>}
+          {reaction?.type === 'reset' && <span className="burst sparkle">✨</span>}
+        </div>
+        <span className={`dir-arrow ${direction === 1 ? 'dir-on' : ''}`} aria-hidden="true">▶</span>
       </div>
       <div className="dragon-meter">
         <div className="meter-label">
