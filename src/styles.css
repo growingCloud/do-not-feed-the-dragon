@@ -460,8 +460,27 @@ body {
   .flyer { opacity: 0; }
 }
 
-@media (max-width: 420px) {
+@media (max-width: 480px) {
   .title-main { font-size: 24px; }
   .card { width: 62px; height: 88px; }
-  .dragon-face { font-size: 46px; }
+  .dragon-face { font-size: 52px; }
+
+  /* Compact game table so 상하좌우 fits a phone without overflow */
+  .table {
+    grid-template-columns: minmax(56px, 0.8fr) 1.5fr minmax(56px, 0.8fr);
+    gap: 4px; padding: 8px 4px; border-radius: 16px;
+  }
+  .seat { min-width: 0; padding: 6px 3px; gap: 3px; }
+  .seat-head { flex-direction: column; gap: 1px; }
+  .seat-meta { align-items: center; }
+  .seat-avatar { font-size: 22px; }
+  .seat-name { max-width: 74px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; }
+  .seat-count { font-size: 12px; }
+  .pile { width: 44px; gap: 2px; }
+  .pile-card { width: 7px; height: 10px; }
+  .flow-arrow { font-size: 13px; height: 13px; }
+  .next-badge { font-size: 9px; padding: 1px 6px; top: -7px; }
+  .dragon-bubble { font-size: 12px; padding: 4px 10px; }
+  .my-status { gap: 5px; }
+  .chip { font-size: 11px; padding: 4px 8px; }
 }

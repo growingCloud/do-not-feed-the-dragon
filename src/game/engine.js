@@ -28,7 +28,7 @@ export const RULES = {
 export const ROUNDS_TO_END = RULES.roundsToEnd
 export const START_HAND = RULES.startHand
 
-const AI_NAMES = ['드래곤 훈련사 A', '드래곤 훈련사 B', '드래곤 훈련사 C']
+const AI_NAMES = ['훈련사 A', '훈련사 B', '훈련사 C']
 
 export function createGame(difficulty = 'normal') {
   const drawPile = shuffle(buildMainDeck())
