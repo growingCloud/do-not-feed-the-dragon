@@ -10,7 +10,7 @@ import GameTable from './components/GameTable.jsx'
 import LogPanel from './components/LogPanel.jsx'
 import GameOver from './components/GameOver.jsx'
 
-const AI_STEP_DELAY = 800 // ms between individual AI actions (one card at a time)
+const AI_STEP_DELAY = 1000 // ms between individual AI actions (one card at a time)
 const TIMER_SECONDS = 10 // per-turn limit when the timer is enabled
 
 // Show the hand tidy: food first (by value), then skills grouped.
