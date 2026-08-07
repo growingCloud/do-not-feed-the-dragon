@@ -87,6 +87,7 @@ body {
 }
 .rules-card h2 { margin: 0 0 10px; font-size: 16px; color: var(--accent-2); }
 .rules-card ul { margin: 0; padding-left: 18px; color: var(--ink-dim); font-size: 14px; line-height: 1.75; }
+.rules-card ul ul { margin: 2px 0 4px; padding-left: 16px; font-size: 13px; color: var(--accent-2); list-style: '↳ '; }
 .rules-card b { color: var(--ink); }
 .title-foot { color: var(--ink-dim); opacity: 0.5; font-size: 12px; margin-top: 14px; }
 

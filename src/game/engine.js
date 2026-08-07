@@ -17,7 +17,7 @@ import { buildMainDeck, buildSatietyDeck, shuffle, SKILLS, cardLabel } from './c
 // 여기 숫자만 바꾸면 게임 밸런스가 통째로 조정됩니다.
 export const RULES = {
   startHand: 7,         // 시작 손패
-  drawPerTurn: 2,       // 턴 종료 시 자동 드로우 (0이면 없음)
+  drawPerTurn: 2,       // 턴 시작 시 자동 드로우 (0이면 없음)
   maxSkillsPerTurn: 2,  // 턴당 스킬 최대 사용 수 (0이면 무제한)
   baseFoodPerTurn: 1,   // 기본 먹이 허용 수 (두번먹이기가 +1)
   roundsToEnd: 5,       // 몇 라운드 후 종료
@@ -67,7 +67,19 @@ export function createGame(difficulty = 'normal') {
   flipSatiety(s)
   pushLog(s, `게임 시작! 드래곤은 최대 ${s.dragon.max}까지 먹을 수 있어요.`, 'system')
 
+  // The first player draws their start-of-turn cards too.
+  beginTurn(s)
+
   return s
+}
+
+// Start-of-turn draw for the current player.
+function beginTurn(s) {
+  if (RULES.drawPerTurn > 0) {
+    const p = currentPlayer(s)
+    const drew = drawN(s, p, RULES.drawPerTurn)
+    if (drew) pushLog(s, `${p.name}: 턴 시작 드로우 ${drew}장.`, p.isHuman ? 'me' : 'ai')
+  }
 }
 
 function freshTurn() {
@@ -267,11 +279,6 @@ export function endTurn(s) {
     pushLog(s, `${p.name}: 먹이를 못 내서 패널티 ${drew}장.`, p.isHuman ? 'me' : 'ai')
   }
 
-  if (RULES.drawPerTurn > 0) {
-    const drew = drawN(s, p, RULES.drawPerTurn)
-    if (drew) pushLog(s, `${p.name}: 턴 종료 드로우 ${drew}장.`, p.isHuman ? 'me' : 'ai')
-  }
-
   s.totalTurns++
   advance(s)
 }
@@ -285,7 +292,11 @@ function advance(s) {
 
   if (s.totalTurns >= ROUNDS_TO_END * n) {
     endByRounds(s)
+    return
   }
+
+  // Draw the new current player's start-of-turn cards.
+  beginTurn(s)
 }
 
 // Sum of remaining FOOD card values in a hand — the tiebreaker weight.

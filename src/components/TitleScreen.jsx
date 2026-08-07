@@ -52,13 +52,23 @@ export default function TitleScreen({ onStart, difficulty = 'normal', timerOn = 
       </div>
 
       <div className="rules-card">
-        <h2>규칙 한눈에</h2>
+        <h2>플레이 규칙</h2>
         <ul>
-          <li>나 + AI 3명, 총 4명이 시작할 때 <b>{RULES.startHand}장</b>씩 손패를 받아요.</li>
-          <li>내 턴에는 <b>먹이 카드 {RULES.baseFoodPerTurn}장</b>(두번먹이기로 늘 수 있음)과 <b>스킬 카드 {RULES.maxSkillsPerTurn === 0 ? '무제한' : `${RULES.maxSkillsPerTurn}장`}</b>을 낼 수 있어요.</li>
-          <li>먹이 숫자가 드래곤에 쌓여요. <b>딱 맞게 채우면</b> 만족하고 리셋! <b>넘기면</b> 패널티 {RULES.overflowPenalty}장!</li>
-          <li>턴을 마치면 <b>{RULES.drawPerTurn}장 드로우</b>. 먹이를 한 장도 못 내면 추가 패널티 {RULES.noFoodPenalty}장.</li>
-          <li><b>손패를 먼저 비우면 즉시 승리.</b> {RULES.roundsToEnd}라운드가 끝나면 손패가 가장 적은 사람이 승리.</li>
+          <li>나 + AI 3명, 총 4명이 시작할 때 <b>{RULES.startHand}장</b>씩 카드를 받아요.</li>
+          <li>
+            내 턴에는 <b>먹이 카드 {RULES.baseFoodPerTurn}장</b>과 <b>스킬 카드 {RULES.maxSkillsPerTurn === 0 ? '무제한' : `${RULES.maxSkillsPerTurn}장`}</b>을 낼 수 있어요.
+            <ul><li>두번먹이기 카드를 쓰면 먹이를 한 번 더 줄 수 있어요!</li></ul>
+          </li>
+          <li>드래곤이 배가 부를 때까지 먹이를 주세요. <b>딱 맞게 채우면</b> 핸드의 카드를 한 장 버릴 수 있어요.</li>
+          <li>만약 포만감 숫자를 <b>초과</b>해버린다면? 드래곤이 화가 나서 카드를 {RULES.overflowPenalty}장 더 줘요.</li>
+          <li>내 턴이 시작할 때마다 새로운 카드를 <b>{RULES.drawPerTurn}장</b> 받아요. 먹이를 한 장도 못 내면 추가 패널티 {RULES.noFoodPenalty}장.</li>
+          <li>
+            <b>{RULES.roundsToEnd}라운드</b>가 끝난 후, 내 핸드의 카드 수가 가장 적은 사람이 승리합니다!
+            <ul>
+              <li>카드의 수가 같다면, 남은 먹이의 수 합계가 적은 사람이 승리합니다.</li>
+              <li>{RULES.roundsToEnd}라운드가 끝나기 전에 핸드의 카드를 모두 사용해도 승리합니다.</li>
+            </ul>
+          </li>
         </ul>
       </div>
 
