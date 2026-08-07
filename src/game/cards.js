@@ -20,7 +20,7 @@ export const SKILLS = {
 // ---- Main deck -----------------------------------------------------------
 // Food distribution: weight higher values so the dragon overflows more often
 // (fewer small "safe" cards to fine-tune with). Tweak these counts to taste.
-export const FOOD_COUNTS = { 1: 2, 2: 4, 3: 6, 4: 8, 5: 10 } // total 30 — high-weighted so it overflows more
+export const FOOD_COUNTS = { 1: 4, 2: 6, 3: 8, 4: 8, 5: 6 } // total 32 — mid-weighted (3·4 두텁게)
 
 export function buildMainDeck() {
   const cards = []
