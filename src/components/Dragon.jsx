@@ -1,44 +1,31 @@
+// The dragon's exact max is hidden — players only see how much it has eaten
+// so far (public info) and a fuzzy mood emoji. The bar is scaled to the highest
+// possible appetite (20), so it never pinpoints this round's secret limit.
+const MAX_POSSIBLE = 20
+
 export default function Dragon({ dragon }) {
   const { current, max } = dragon
-  const pct = max > 0 ? Math.min(100, (current / max) * 100) : 0
   const danger = max > 0 && current >= max - 2
   const full = current >= max && max > 0
-  const space = Math.max(max - current, 0)
+  const pct = Math.min(100, (current / MAX_POSSIBLE) * 100)
 
-  // Dragon face + speech bubble both reflect how full it is.
-  let face = '🐲'
-  let bubble = { emoji: '😴', text: '배고파' }
-  if (full) {
-    face = '🤤'
-    bubble = { emoji: '🤤', text: '가득!' }
-  } else if (danger) {
-    face = '😰'
-    bubble = { emoji: '🥵', text: '위험!' }
-  } else if (pct > 60) {
-    face = '😋'
-    bubble = { emoji: '😋', text: '냠냠' }
-  } else if (current > 0) {
-    face = '🙂'
-    bubble = { emoji: '🙂', text: '더 줘' }
-  }
+  // Mood emoji only (the dragon itself always stays 🐲).
+  let mood = '😴'
+  if (full) mood = '🤤'
+  else if (danger) mood = '🥵'
+  else if (max > 0 && current / max > 0.6) mood = '😋'
+  else if (current > 0) mood = '🙂'
 
   return (
     <div className={`dragon-box ${danger ? 'is-danger' : ''}`}>
       <div className={`dragon-bubble ${danger ? 'bubble-danger' : ''}`}>
-        <span className="bubble-emoji">{bubble.emoji}</span>
-        <span className="bubble-text">{bubble.text}</span>
+        <span className="bubble-emoji">{mood}</span>
       </div>
-      <div className="dragon-face">{face}</div>
+      <div className="dragon-face">🐲</div>
       <div className="dragon-meter">
-        <div className="meter-label">
-          포만감 <b>{current}</b> / {max}
-        </div>
+        <div className="meter-label">포만감 <b>{current}</b></div>
         <div className="meter-track">
           <div className={`meter-fill ${danger ? 'hot' : ''}`} style={{ width: `${pct}%` }} />
-          <div className="meter-max-tick" />
-        </div>
-        <div className="meter-hint">
-          {full ? '가득! 리셋됩니다' : `앞으로 ${space} 더 먹으면 딱 맞아요`}
         </div>
       </div>
     </div>

@@ -9,6 +9,7 @@ import LogPanel from './components/LogPanel.jsx'
 import GameOver from './components/GameOver.jsx'
 
 const AI_DELAY = 1500 // ms between AI moves — linger so the turn is easy to follow
+const TIMER_SECONDS = 10 // per-turn limit when the timer is enabled
 
 // Show the hand tidy: food first (by value), then skills grouped.
 function sortHand(hand) {
@@ -25,15 +26,20 @@ const DIFF_LABEL = { easy: '쉬움', normal: '보통', hard: '어려움' }
 export default function App() {
   const [game, setGame] = useState(null)
   const [difficulty, setDifficulty] = useState('normal')
+  const [timerOn, setTimerOn] = useState(false)
+  const [timeLeft, setTimeLeft] = useState(TIMER_SECONDS)
 
   // Undo bookkeeping (kept in refs so restoring state doesn't wipe it).
   const snapshotRef = useRef(null) // { turn, state } captured at the human turn's start
   const undoTurnRef = useRef(null) // the totalTurns value for which undo was already used
+  const autoEndRef = useRef(-1) // totalTurns already auto-ended by the timer
 
-  function startGame(diff) {
+  function startGame(diff, timer = false) {
     snapshotRef.current = null
     undoTurnRef.current = null
+    autoEndRef.current = -1
     setDifficulty(diff)
+    setTimerOn(timer)
     setGame(createGame(diff))
   }
 
@@ -73,7 +79,31 @@ export default function App() {
     setGame(structuredClone(snap.state))
   }
 
-  if (!game) return <TitleScreen difficulty={difficulty} onStart={startGame} />
+  const isMyTurn = !!game && game.phase === 'playing' && game.current === 0
+
+  // Timer: reset the countdown when a fresh human turn begins.
+  useEffect(() => {
+    if (isMyTurn && timerOn) setTimeLeft(TIMER_SECONDS)
+  }, [game?.totalTurns, isMyTurn, timerOn])
+
+  // Timer: tick down once per second during the human's turn.
+  useEffect(() => {
+    if (!isMyTurn || !timerOn || timeLeft <= 0) return
+    const id = setTimeout(() => setTimeLeft((t) => t - 1), 1000)
+    return () => clearTimeout(id)
+  }, [isMyTurn, timerOn, timeLeft])
+
+  // Timer: auto-end the turn on timeout (guarded so it fires once per turn).
+  useEffect(() => {
+    if (isMyTurn && timerOn && timeLeft === 0 && game && autoEndRef.current !== game.totalTurns) {
+      autoEndRef.current = game.totalTurns
+      mutate((s) => {
+        if (s.current === 0 && s.phase === 'playing') endTurn(s)
+      })
+    }
+  }, [timeLeft, isMyTurn, timerOn])
+
+  if (!game) return <TitleScreen difficulty={difficulty} timerOn={timerOn} onStart={startGame} />
 
   const me = game.players[0]
   const myTurn = game.current === 0 && game.phase === 'playing'
@@ -149,6 +179,16 @@ export default function App() {
           })}
         </div>
 
+        {timerOn && myTurn && (
+          <div className="timer-bar">
+            <div
+              className={`timer-fill ${timeLeft <= 3 ? 'timer-low' : ''}`}
+              style={{ width: `${(timeLeft / TIMER_SECONDS) * 100}%` }}
+            />
+            <span className="timer-text">⏱️ {timeLeft}s</span>
+          </div>
+        )}
+
         <div className="controls">
           <button className="btn btn-primary" disabled={!myTurn} onClick={() => mutate((s) => endTurn(s))}>
             턴 종료 {myTurn && ts.foodPlayed === 0 ? '(먹이 안 냄 → 패널티 1장)' : ''}
@@ -167,7 +207,7 @@ export default function App() {
       </div>
 
       {game.phase === 'gameover' && (
-        <GameOver game={game} onRestart={() => startGame(game.difficulty)} onHome={() => setGame(null)} />
+        <GameOver game={game} onRestart={() => startGame(game.difficulty, timerOn)} onHome={() => setGame(null)} />
       )}
     </div>
   )

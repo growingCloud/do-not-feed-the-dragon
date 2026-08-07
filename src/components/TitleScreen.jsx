@@ -7,8 +7,9 @@ const DIFFICULTIES = [
   { key: 'hard', label: '어려움', emoji: '🔥', desc: 'AI가 손패를 공격적으로 비워요.' },
 ]
 
-export default function TitleScreen({ onStart, difficulty = 'normal' }) {
+export default function TitleScreen({ onStart, difficulty = 'normal', timerOn = false }) {
   const [selected, setSelected] = useState(difficulty)
+  const [timer, setTimer] = useState(timerOn)
 
   return (
     <div className="title-screen">
@@ -34,9 +35,21 @@ export default function TitleScreen({ onStart, difficulty = 'normal' }) {
         </div>
       </div>
 
-      <button className="btn btn-primary btn-big" onClick={() => onStart(selected)}>
-        게임 시작
-      </button>
+      <div className="start-row">
+        <button className="btn btn-primary btn-big" onClick={() => onStart(selected, timer)}>
+          게임 시작
+        </button>
+        <button
+          type="button"
+          className={`timer-toggle ${timer ? 'is-on' : ''}`}
+          onClick={() => setTimer((v) => !v)}
+          title="켜면 내 턴에 10초 제한이 걸려요. 시간이 다 되면 자동으로 턴이 종료됩니다."
+        >
+          <span className="timer-toggle-icon">⏱️</span>
+          <span className="timer-toggle-label">턴 10초 제한</span>
+          <span className={`switch ${timer ? 'switch-on' : ''}`}><span className="switch-knob" /></span>
+        </button>
+      </div>
 
       <div className="rules-card">
         <h2>규칙 한눈에</h2>

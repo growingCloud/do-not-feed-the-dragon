@@ -64,7 +64,7 @@ export function createGame(difficulty = 'normal') {
 
   // Flip the first satiety card → the dragon's starting appetite.
   flipSatiety(s)
-  pushLog(s, `게임 시작! 드래곤은 최대 ${s.dragon.max}까지 먹을 수 있어요.`, 'system')
+  pushLog(s, `게임 시작! 드래곤이 배고파요. 얼마나 먹을 수 있는지는 아무도 몰라요...`, 'system')
 
   return s
 }
@@ -156,7 +156,7 @@ export function playFood(s, cardId) {
     s.turnState.times2Pending = false
   }
   s.dragon.current += value
-  pushLog(s, `${p.name}: 먹이 ${card.value}${value !== card.value ? ` (×2 → ${value})` : ''} → 드래곤 포만감 ${Math.min(s.dragon.current, s.dragon.max)}${s.dragon.current > s.dragon.max ? `?! (${s.dragon.current})` : ''} / ${s.dragon.max}`, p.isHuman ? 'me' : 'ai')
+  pushLog(s, `${p.name}: 먹이 ${card.value}${value !== card.value ? ` (×2 → ${value})` : ''} → 드래곤 포만감 ${s.dragon.current}`, p.isHuman ? 'me' : 'ai')
 
   resolveDragon(s, p)
   if (s.phase === 'playing') checkEmptyHandWin(s, p)
@@ -187,11 +187,11 @@ export function playSkill(s, cardId) {
       break
     case 'minus2':
       s.dragon.current = Math.max(0, s.dragon.current - 2)
-      pushLog(s, `${p.name}: ${meta.name} — 포만감 ${s.dragon.current}/${s.dragon.max}`, p.isHuman ? 'me' : 'ai')
+      pushLog(s, `${p.name}: ${meta.name} — 포만감 ${s.dragon.current}`, p.isHuman ? 'me' : 'ai')
       break
     case 'digest':
       s.dragon.current = Math.max(0, s.dragon.current - 5)
-      pushLog(s, `${p.name}: ${meta.name} — 포만감 ${s.dragon.current}/${s.dragon.max}`, p.isHuman ? 'me' : 'ai')
+      pushLog(s, `${p.name}: ${meta.name} — 포만감 ${s.dragon.current}`, p.isHuman ? 'me' : 'ai')
       break
     case 'flip':
       s.direction *= -1
@@ -218,7 +218,7 @@ function resolveDragon(s, p) {
     pushLog(s, `💥 포만감 초과! ${p.name}가 패널티로 ${drew}장을 뽑아요.`, 'bad')
   }
   flipSatiety(s)
-  pushLog(s, `새 포만감 카드: 드래곤 최대 ${s.dragon.max}`, 'system')
+  pushLog(s, `🎴 새 포만감 카드 공개! 드래곤이 다시 배고파졌어요. (한계는 비밀)`, 'system')
 }
 
 function checkEmptyHandWin(s, p) {
