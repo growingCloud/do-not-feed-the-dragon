@@ -18,16 +18,16 @@ export const SKILLS = {
 }
 
 // ---- Main deck -----------------------------------------------------------
-// Base (44 cards) composition from the design doc:
-//   먹이 1~5 : 6장씩 (30)
-//   두번먹이기 / ×2 / -2 / 뒤집기 : 3장씩 (12)
-//   소화(-5) : 2장
+// Food distribution: weight higher values so the dragon overflows more often
+// (fewer small "safe" cards to fine-tune with). Tweak these counts to taste.
+export const FOOD_COUNTS = { 1: 2, 2: 4, 3: 6, 4: 8, 5: 10 } // total 30 — high-weighted so it overflows more
+
 export function buildMainDeck() {
   const cards = []
 
-  // Food cards 1..5, 6 copies each
+  // Food cards 1..5, per FOOD_COUNTS
   for (let value = 1; value <= 5; value++) {
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < (FOOD_COUNTS[value] ?? 0); i++) {
       cards.push({ id: nextId(), type: 'food', value })
     }
   }
