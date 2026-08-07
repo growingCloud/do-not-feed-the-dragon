@@ -93,7 +93,9 @@ export default function App() {
   return (
     <div className="app">
       <header className="topbar">
-        <div className="title-mini">🐲 Do not feed the dragon</div>
+        <button className="home-btn" onClick={() => setGame(null)} title="메인 화면으로">
+          ← 메인
+        </button>
         <div className="pill-group">
           <div className="round-pill round-pill-diff">난이도 {DIFF_LABEL[game.difficulty] ?? game.difficulty}</div>
           <div className="round-pill">라운드 {Math.min(game.round, 5)} / 5</div>
@@ -148,20 +150,19 @@ export default function App() {
         </div>
 
         <div className="controls">
-          <button
-            className="btn btn-undo"
-            disabled={!canUndo}
-            title={ts.dragonTriggered ? '드래곤이 반응한 뒤로는 되돌릴 수 없어요.' : '이번 턴에 낸 카드를 되돌려요. (턴당 1회)'}
-            onClick={undo}
-          >
-            ↩︎ 실행 취소
-          </button>
           <button className="btn btn-primary" disabled={!myTurn} onClick={() => mutate((s) => endTurn(s))}>
             턴 종료 {myTurn && ts.foodPlayed === 0 ? '(먹이 안 냄 → 패널티 1장)' : ''}
           </button>
-          <button className="btn btn-ghost" onClick={() => setGame(null)}>
-            메인으로
+          <button className="btn btn-undo" disabled={!canUndo} onClick={undo}>
+            ↩︎ 실행 취소
           </button>
+          <span
+            className="info-dot"
+            tabIndex={0}
+            title="실행 취소는 턴당 1회 쓸 수 있어요. 드래곤 포만감이 바뀌면(딱 맞춤 리셋 · 초과) 그 턴에는 더 이상 되돌릴 수 없어요."
+          >
+            i
+          </span>
         </div>
       </div>
 
