@@ -47,13 +47,11 @@ export function buildMainDeck() {
 }
 
 // ---- Satiety deck --------------------------------------------------------
-// Dragon max fullness values 6..10, 3 copies each (15 cards).
+// Dragon max fullness values 10..20, one copy each (11 cards).
 export function buildSatietyDeck() {
   const cards = []
-  for (let value = 6; value <= 10; value++) {
-    for (let i = 0; i < 3; i++) {
-      cards.push({ id: nextId(), type: 'satiety', value })
-    }
+  for (let value = 10; value <= 20; value++) {
+    cards.push({ id: nextId(), type: 'satiety', value })
   }
   return cards
 }

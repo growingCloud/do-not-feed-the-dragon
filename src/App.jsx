@@ -11,8 +11,16 @@ import GameOver from './components/GameOver.jsx'
 
 const AI_DELAY = 950 // ms between AI moves so the human can follow along
 
+const DIFF_LABEL = { easy: '쉬움', normal: '보통', hard: '어려움' }
+
 export default function App() {
   const [game, setGame] = useState(null)
+  const [difficulty, setDifficulty] = useState('normal')
+
+  function startGame(diff) {
+    setDifficulty(diff)
+    setGame(createGame(diff))
+  }
 
   // Apply a mutating engine action while keeping React state immutable.
   function mutate(fn) {
@@ -29,11 +37,11 @@ export default function App() {
     if (!game || game.phase !== 'playing') return
     const p = game.players[game.current]
     if (p.isHuman) return
-    const t = setTimeout(() => mutate((s) => aiTakeTurn(s)), AI_DELAY)
+    const t = setTimeout(() => mutate((s) => aiTakeTurn(s, s.difficulty)), AI_DELAY)
     return () => clearTimeout(t)
   }, [game])
 
-  if (!game) return <TitleScreen onStart={() => setGame(createGame())} />
+  if (!game) return <TitleScreen difficulty={difficulty} onStart={startGame} />
 
   const me = game.players[0]
   const myTurn = game.current === 0 && game.phase === 'playing'
@@ -44,7 +52,10 @@ export default function App() {
     <div className="app">
       <header className="topbar">
         <div className="title-mini">🐲 Do not feed the dragon</div>
-        <div className="round-pill">라운드 {Math.min(game.round, 5)} / 5</div>
+        <div className="pill-group">
+          <div className="round-pill round-pill-diff">난이도 {DIFF_LABEL[game.difficulty] ?? game.difficulty}</div>
+          <div className="round-pill">라운드 {Math.min(game.round, 5)} / 5</div>
+        </div>
       </header>
 
       <OpponentRow players={game.players} current={game.current} direction={game.direction} />
@@ -101,7 +112,7 @@ export default function App() {
       </div>
 
       {game.phase === 'gameover' && (
-        <GameOver game={game} onRestart={() => setGame(createGame())} onHome={() => setGame(null)} />
+        <GameOver game={game} onRestart={() => startGame(game.difficulty)} onHome={() => setGame(null)} />
       )}
     </div>
   )

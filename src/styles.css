@@ -90,10 +90,28 @@ body {
 .rules-card b { color: var(--ink); }
 .title-foot { color: var(--ink-dim); opacity: 0.5; font-size: 12px; margin-top: 14px; }
 
+/* ---------- Difficulty picker ---------- */
+.diff-picker { width: 100%; margin-top: 6px; }
+.diff-picker-label { font-size: 13px; color: var(--ink-dim); font-weight: 700; margin-bottom: 8px; }
+.diff-options { display: flex; gap: 8px; }
+.diff-option {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+  background: var(--panel); border: 2px solid var(--line); border-radius: 14px;
+  padding: 12px 8px; cursor: pointer; color: var(--ink); text-align: center;
+  transition: border-color 0.15s, transform 0.1s, background 0.15s;
+}
+.diff-option:hover { transform: translateY(-2px); }
+.diff-option.is-selected { border-color: var(--accent-2); background: var(--panel-2); box-shadow: 0 0 0 2px rgba(255, 209, 102, 0.2); }
+.diff-emoji { font-size: 26px; line-height: 1; }
+.diff-name { font-size: 15px; font-weight: 800; }
+.diff-desc { font-size: 11px; color: var(--ink-dim); line-height: 1.35; }
+
 /* ---------- Top bar ---------- */
 .topbar { display: flex; align-items: center; justify-content: space-between; }
 .title-mini { font-weight: 800; font-size: 15px; color: var(--ink); }
+.pill-group { display: flex; gap: 6px; }
 .round-pill { background: var(--panel); border: 1px solid var(--line); color: var(--accent-2); font-weight: 700; font-size: 13px; padding: 6px 12px; border-radius: 999px; }
+.round-pill-diff { color: var(--ink-dim); }
 
 /* ---------- Opponents ---------- */
 .opponents { display: flex; gap: 8px; align-items: stretch; flex-wrap: wrap; }

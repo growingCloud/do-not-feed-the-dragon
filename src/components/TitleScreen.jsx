@@ -1,11 +1,39 @@
-export default function TitleScreen({ onStart }) {
+import { useState } from 'react'
+
+const DIFFICULTIES = [
+  { key: 'easy', label: '쉬움', emoji: '🥚', desc: 'AI가 실수를 자주 해요. 편하게 즐기기.' },
+  { key: 'normal', label: '보통', emoji: '🐉', desc: '똑똑한 AI. 딱 맞추고 방어도 해요.' },
+  { key: 'hard', label: '어려움', emoji: '🔥', desc: 'AI가 손패를 공격적으로 비워요.' },
+]
+
+export default function TitleScreen({ onStart, difficulty = 'normal' }) {
+  const [selected, setSelected] = useState(difficulty)
+
   return (
     <div className="title-screen">
       <div className="title-dragon">🐲</div>
       <h1 className="title-main">Do not feed the dragon</h1>
       <p className="title-sub">드래곤을 배터지게 하지 마세요. 먼저 손패를 비우는 사람이 승리!</p>
 
-      <button className="btn btn-primary btn-big" onClick={onStart}>
+      <div className="diff-picker">
+        <div className="diff-picker-label">난이도 선택</div>
+        <div className="diff-options">
+          {DIFFICULTIES.map((d) => (
+            <button
+              key={d.key}
+              type="button"
+              className={`diff-option ${selected === d.key ? 'is-selected' : ''}`}
+              onClick={() => setSelected(d.key)}
+            >
+              <span className="diff-emoji">{d.emoji}</span>
+              <span className="diff-name">{d.label}</span>
+              <span className="diff-desc">{d.desc}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <button className="btn btn-primary btn-big" onClick={() => onStart(selected)}>
         게임 시작
       </button>
 

@@ -18,7 +18,7 @@ export const START_HAND = 7
 
 const AI_NAMES = ['드래곤 훈련사 A', '드래곤 훈련사 B', '드래곤 훈련사 C']
 
-export function createGame() {
+export function createGame(difficulty = 'normal') {
   const drawPile = shuffle(buildMainDeck())
   const satietyPile = shuffle(buildSatietyDeck())
 
@@ -29,6 +29,7 @@ export function createGame() {
 
   const s = {
     players,
+    difficulty,
     drawPile,
     discardPile: [],
     satietyPile,
