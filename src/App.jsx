@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { createGame, playFood, playSkill, endTurn, discardReward, skipDiscard, canPlayFood, canPlaySkill, RULES } from './game/engine.js'
-import { aiTakeTurn } from './game/ai.js'
+import { aiStep } from './game/ai.js'
 import { SKILLS, SKILL_COUNTS } from './game/cards.js'
 
 const SKILL_ORDER = Object.keys(SKILL_COUNTS)
@@ -10,7 +10,7 @@ import GameTable from './components/GameTable.jsx'
 import LogPanel from './components/LogPanel.jsx'
 import GameOver from './components/GameOver.jsx'
 
-const AI_DELAY = 1500 // ms between AI moves — linger so the turn is easy to follow
+const AI_STEP_DELAY = 800 // ms between individual AI actions (one card at a time)
 const TIMER_SECONDS = 10 // per-turn limit when the timer is enabled
 
 // Show the hand tidy: food first (by value), then skills grouped.
@@ -56,12 +56,14 @@ export default function App() {
     })
   }
 
-  // Drive AI turns automatically, one move at a time.
+  // Drive AI turns automatically, ONE action at a time. Each aiStep mutates the
+  // game, which re-runs this effect and schedules the next action, until the
+  // turn ends (current becomes the human or the next AI).
   useEffect(() => {
     if (!game || game.phase !== 'playing') return
     const p = game.players[game.current]
     if (p.isHuman) return
-    const t = setTimeout(() => mutate((s) => aiTakeTurn(s, s.difficulty)), AI_DELAY)
+    const t = setTimeout(() => mutate((s) => aiStep(s, s.difficulty)), AI_STEP_DELAY)
     return () => clearTimeout(t)
   }, [game])
 
@@ -204,15 +206,9 @@ export default function App() {
         reaction={reaction}
       />
 
-      <div className={`turn-banner ${discardMode ? 'banner-reward' : ''}`}>
-        {game.phase === 'gameover'
-          ? '게임 종료'
-          : discardMode
-            ? '🎯 딱 맞췄어요! 버릴 카드를 한 장 고르세요.'
-            : myTurn
-              ? '내 턴이에요! 카드를 내보세요.'
-              : `${game.players[game.current].name}의 턴...`}
-      </div>
+      {discardMode && (
+        <div className="turn-banner banner-reward">🎯 딱 맞췄어요! 버릴 카드를 한 장 고르세요.</div>
+      )}
 
       <LogPanel log={game.log} />
 

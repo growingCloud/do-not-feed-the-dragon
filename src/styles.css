@@ -318,13 +318,14 @@ body {
   flex-direction: column;
   gap: 2px;
 }
-.log-line { color: var(--ink-dim); }
-.log-me { color: var(--ink); }
-.log-ai { color: #c9b8f0; }
-.log-good { color: var(--good); font-weight: 600; }
-.log-bad { color: var(--bad); font-weight: 600; }
-.log-system { color: var(--ink-dim); opacity: 0.8; font-style: italic; }
-.log-win { color: var(--accent-2); font-weight: 800; }
+/* Old lines dim to grey; the newest line is bright; dragon-state lines keep
+   their color regardless of age. (Order: dragon colors after .log-recent so a
+   recent dragon line still shows its color.) */
+.log-line { color: var(--ink-dim); opacity: 0.5; }
+.log-recent { color: var(--ink); opacity: 1; font-weight: 600; }
+.log-good { color: var(--good); opacity: 1; font-weight: 600; }
+.log-bad { color: var(--bad); opacity: 1; font-weight: 600; }
+.log-win { color: var(--accent-2); opacity: 1; font-weight: 800; }
 
 /* ---------- My area ---------- */
 .my-area { margin-top: auto; display: flex; flex-direction: column; gap: 10px; }

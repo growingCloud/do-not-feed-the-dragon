@@ -54,6 +54,7 @@ export function createGame(difficulty = 'normal') {
     round: 1,
     pendingDiscard: null, // player id owed a "hit exactly → discard 1" reward
     playSeq: 0, // increments on each card play (drives fly animation)
+    logSeq: 0, // unique id per log entry (stable React keys)
     lastPlay: null, // { seq, playerId, type, value|skill }
     dragonEvent: null, // { seq, type: 'reset' | 'overflow' }
     phase: 'playing', // 'playing' | 'gameover'
@@ -93,7 +94,7 @@ function freshTurn() {
 
 // ---- Logging -------------------------------------------------------------
 function pushLog(s, text, kind = 'info') {
-  s.log.push({ text, kind, turn: s.totalTurns })
+  s.log.push({ text, kind, turn: s.totalTurns, id: s.logSeq++ })
   if (s.log.length > 60) s.log.shift()
 }
 
