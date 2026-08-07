@@ -3,9 +3,9 @@ import { RULES } from '../game/engine.js'
 import Codex from './Codex.jsx'
 
 const DIFFICULTIES = [
-  { key: 'easy', label: '쉬움', emoji: '🥚', desc: 'AI가 실수를 자주 해요. 편하게 즐기기.' },
-  { key: 'normal', label: '보통', emoji: '🐉', desc: '똑똑한 AI. 딱 맞추고 방어도 해요.' },
-  { key: 'hard', label: '어려움', emoji: '🔥', desc: 'AI가 손패를 공격적으로 비워요.' },
+  { key: 'easy', label: '쉬움', emoji: '🥚', desc: 'AI가 실수를 자주 해요.' },
+  { key: 'normal', label: '보통', emoji: '🐉', desc: '딱 맞추고 방어도 해요.' },
+  { key: 'hard', label: '어려움', emoji: '🔥', desc: '전략적으로 플레이 해요.' },
 ]
 
 export default function TitleScreen({ onStart, difficulty = 'normal', timerOn = false }) {
