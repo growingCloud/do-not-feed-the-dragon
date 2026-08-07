@@ -26,7 +26,11 @@ export default function Card({ card, playable, projected, onClick, small = false
       ) : (
         <>
           <span className="card-emoji">{meta.emoji}</span>
-          <span className="card-skill-name">{meta.name}</span>
+          <span className="card-skill-name">
+            {(meta.face ?? [meta.name]).map((line, i) => (
+              <span key={i} className="skill-line">{line}</span>
+            ))}
+          </span>
           <span className="card-kind">스킬</span>
         </>
       )}

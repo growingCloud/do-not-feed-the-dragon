@@ -319,7 +319,8 @@ body {
 .card-emoji { font-size: 22px; }
 .card-value { font-size: 26px; font-weight: 900; line-height: 1; }
 .card-projected { position: absolute; top: 6px; right: 6px; font-size: 12px; font-weight: 800; color: var(--hot); background: rgba(255,255,255,0.75); border-radius: 6px; padding: 1px 4px; }
-.card-skill-name { font-size: 12px; font-weight: 800; text-align: center; line-height: 1.1; padding: 0 4px; }
+.card-skill-name { display: flex; flex-direction: column; align-items: center; font-size: 12px; font-weight: 800; text-align: center; line-height: 1.15; padding: 0 3px; }
+.skill-line { display: block; white-space: nowrap; }
 .card-kind { position: absolute; bottom: 4px; font-size: 9px; font-weight: 700; opacity: 0.6; }
 
 /* ---------- Controls ---------- */
