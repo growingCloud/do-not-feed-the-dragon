@@ -16,7 +16,7 @@ import { buildMainDeck, buildSatietyDeck, shuffle, SKILLS, cardLabel } from './c
 // ---- Tunable rules -------------------------------------------------------
 // 여기 숫자만 바꾸면 게임 밸런스가 통째로 조정됩니다.
 export const RULES = {
-  startHand: 7,         // 시작 손패
+  startHand: 5,         // 시작 손패 (+ 첫 턴 시작 드로우 2 = 첫 플레이 시 7장)
   drawPerTurn: 2,       // 턴 시작 시 자동 드로우 (0이면 없음)
   maxSkillsPerTurn: 2,  // 턴당 스킬 최대 사용 수 (0이면 무제한)
   baseFoodPerTurn: 1,   // 기본 먹이 허용 수 (두번먹이기가 +1)
