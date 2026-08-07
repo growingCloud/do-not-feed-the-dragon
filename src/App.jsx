@@ -159,6 +159,14 @@ export default function App() {
   const skillOk = myTurn && canPlaySkill(game)
   const ts = game.turnState
 
+  // The human's seat is hidden on mobile, so mirror the current/next turn border
+  // onto the hand area. Follows displayActive (the visual turn) like the seats.
+  const seatCount = game.players.length
+  const displayNext =
+    game.phase === 'playing' ? ((displayActive + game.direction) % seatCount + seatCount) % seatCount : -1
+  const myAreaTurn =
+    game.phase !== 'playing' ? '' : displayActive === 0 ? 'is-my-turn' : displayNext === 0 ? 'is-my-next' : ''
+
   const discardMode = myTurn && game.pendingDiscard === 0
 
   const playedThisTurn = ts.foodPlayed > 0 || ts.skillsPlayed > 0
@@ -212,7 +220,7 @@ export default function App() {
 
       <LogPanel log={game.log} />
 
-      <div className="my-area">
+      <div className={`my-area ${myAreaTurn}`}>
         <div className="my-status">
           <span className="chip">먹이 {ts.foodPlayed}/{ts.foodAllowed}</span>
           <span className="chip">스킬 {ts.skillsPlayed}/{RULES.maxSkillsPerTurn === 0 ? '∞' : RULES.maxSkillsPerTurn}</span>

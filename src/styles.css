@@ -493,4 +493,14 @@ body {
   .dragon-face { font-size: 62px; }
   .my-status { gap: 5px; }
   .chip { font-size: 11px; padding: 4px 8px; }
+
+  /* Human's seat box is hidden on mobile — show the current/next turn border on
+     the hand area instead. */
+  .my-area { border-radius: 16px; padding: 8px; transition: box-shadow 0.25s ease; }
+  .my-area.is-my-turn { box-shadow: 0 0 0 2px var(--accent-2), 0 0 18px rgba(255, 209, 102, 0.28); animation: myTurnPulse 1.6s ease-in-out infinite; }
+  .my-area.is-my-next { box-shadow: 0 0 0 2px rgba(110, 231, 168, 0.5); }
+  @keyframes myTurnPulse {
+    0%, 100% { box-shadow: 0 0 0 2px var(--accent-2), 0 0 6px rgba(255, 209, 102, 0.2); }
+    50% { box-shadow: 0 0 0 2px var(--accent-2), 0 0 20px rgba(255, 209, 102, 0.4); }
+  }
 }
