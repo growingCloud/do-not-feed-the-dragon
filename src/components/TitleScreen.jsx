@@ -54,14 +54,12 @@ export default function TitleScreen({ onStart, difficulty = 'normal', timerOn = 
       <div className="rules-card">
         <h2>플레이 규칙</h2>
         <ul>
-          <li>나 + AI 3명, 총 4명이 시작할 때 <b>{RULES.startHand}장</b>씩 카드를 받아요.</li>
-          <li>
-            내 턴에는 <b>먹이 카드 {RULES.baseFoodPerTurn}장</b>과 <b>스킬 카드 {RULES.maxSkillsPerTurn === 0 ? '무제한' : `${RULES.maxSkillsPerTurn}장`}</b>을 낼 수 있어요.
-            <ul><li>두번먹이기 카드를 쓰면 먹이를 한 번 더 줄 수 있어요!</li></ul>
-          </li>
-          <li>드래곤이 배가 부를 때까지 먹이를 주세요. <b>딱 맞게 채우면</b> 핸드의 카드를 한 장 버릴 수 있어요.</li>
-          <li>만약 포만감 숫자를 <b>초과</b>해버린다면? 드래곤이 화가 나서 카드를 {RULES.overflowPenalty}장 더 줘요.</li>
-          <li>내 턴이 시작할 때마다 새로운 카드를 <b>{RULES.drawPerTurn}장</b> 받아요. 먹이를 한 장도 못 내면 추가 패널티 {RULES.noFoodPenalty}장.</li>
+          <li>나 + AI 3명, <b>총 4명</b>이 함께 대결합니다.</li>
+          <li>시작 카드는 <b>{RULES.startHand}장</b>, 내 턴이 시작할 때마다 새로운 카드를 <b>{RULES.drawPerTurn}장</b> 받아요.</li>
+          <li>내 턴에는 반드시 <b>먹이 카드 {RULES.baseFoodPerTurn}장</b>을 내야 합니다. 못 내면 추가 패널티 {RULES.noFoodPenalty}장.</li>
+          <li>스킬 카드는 한 턴에 <b>최대 {RULES.maxSkillsPerTurn}장</b>까지 낼 수 있어요.</li>
+          <li>드래곤이 배가 부를 때까지 먹이를 주세요. <b>딱 맞게 주면</b> 카드를 한 장 버릴 수 있어요.</li>
+          <li>만약 포만감 숫자를 <b>초과</b>한다면? 드래곤이 화가 나서 카드를 {RULES.overflowPenalty}장 더 줘요.</li>
           <li>
             <b>{RULES.roundsToEnd}라운드</b>가 끝난 후, 내 핸드의 카드 수가 가장 적은 사람이 승리합니다!
             <ul>
