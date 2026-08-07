@@ -91,6 +91,41 @@ body {
 .rules-card b { color: var(--ink); }
 .title-foot { color: var(--ink-dim); opacity: 0.5; font-size: 12px; margin-top: 14px; }
 
+/* ---------- Card codex ---------- */
+.codex { width: 100%; margin-top: 14px; }
+.codex-toggle {
+  width: 100%; display: flex; align-items: center; justify-content: space-between;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
+  padding: 14px 18px; cursor: pointer; color: var(--ink); font-size: 15px; font-weight: 800;
+  transition: border-color 0.15s;
+}
+.codex-toggle:hover { border-color: var(--ink-dim); }
+.codex-total { color: var(--ink-dim); font-weight: 600; font-size: 12px; }
+.codex-chevron { color: var(--accent-2); }
+.codex-body {
+  margin-top: 8px; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 14px; padding: 14px 16px; text-align: left;
+}
+.codex-section-title { font-size: 13px; font-weight: 800; color: var(--accent-2); margin: 8px 0 6px; }
+.codex-section-title:first-child { margin-top: 0; }
+.codex-row { display: flex; align-items: center; gap: 12px; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.codex-info { flex: 1; min-width: 0; }
+.codex-line1 { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.codex-name { font-size: 14px; font-weight: 700; color: var(--ink); }
+.codex-count { font-size: 13px; font-weight: 800; color: var(--accent-2); }
+.codex-pct { font-size: 12px; color: var(--ink-dim); }
+.codex-effect { font-size: 12px; color: var(--ink-dim); margin-top: 2px; }
+.codex-note { font-size: 11px; color: var(--ink-dim); opacity: 0.75; margin: 12px 0 0; line-height: 1.5; }
+
+/* Mini card face for the codex */
+.mini {
+  flex: 0 0 auto; width: 34px; height: 46px; border-radius: 7px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  color: #241a12; box-shadow: 0 2px 5px rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.18);
+}
+.mini-emoji { font-size: 15px; line-height: 1; }
+.mini-value { font-size: 17px; font-weight: 900; line-height: 1; }
+
 /* ---------- Difficulty picker ---------- */
 .diff-picker { width: 100%; margin-top: 6px; }
 .diff-picker-label { font-size: 13px; color: var(--ink-dim); font-weight: 700; margin-bottom: 8px; }

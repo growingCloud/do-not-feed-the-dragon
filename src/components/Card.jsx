@@ -2,16 +2,17 @@ import { SKILLS } from '../game/cards.js'
 
 const FOOD_EMOJI = '🍖'
 
-export default function Card({ card, playable, projected, onClick, small = false }) {
+export default function Card({ card, playable, projected, onClick, small = false, preview = false }) {
   const isFood = card.type === 'food'
   const meta = isFood ? null : SKILLS[card.skill]
+  const state = preview ? 'is-preview' : playable ? 'is-playable' : 'is-locked'
 
   return (
     <button
       type="button"
-      className={`card ${isFood ? 'card-food' : `card-skill skill-${card.skill}`} ${playable ? 'is-playable' : 'is-locked'} ${small ? 'card-small' : ''}`}
-      onClick={onClick}
-      disabled={!playable}
+      className={`card ${isFood ? 'card-food' : `card-skill skill-${card.skill}`} ${state} ${small ? 'card-small' : ''}`}
+      onClick={preview ? undefined : onClick}
+      disabled={!preview && !playable}
       title={isFood ? `먹이 ${card.value}` : `${meta.name} — ${meta.desc}`}
     >
       {isFood ? (

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { RULES } from '../game/engine.js'
+import Codex from './Codex.jsx'
 
 const DIFFICULTIES = [
   { key: 'easy', label: '쉬움', emoji: '🥚', desc: 'AI가 실수를 자주 해요. 편하게 즐기기.' },
@@ -69,6 +70,8 @@ export default function TitleScreen({ onStart, difficulty = 'normal', timerOn = 
           </li>
         </ul>
       </div>
+
+      <Codex />
 
       <p className="title-foot">GGA · 선생님 예시 게임</p>
     </div>

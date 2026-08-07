@@ -21,6 +21,7 @@ export const SKILLS = {
 // Food distribution: weight higher values so the dragon overflows more often
 // (fewer small "safe" cards to fine-tune with). Tweak these counts to taste.
 export const FOOD_COUNTS = { 1: 4, 2: 6, 3: 8, 4: 8, 5: 6 } // total 32 — mid-weighted (3·4 두텁게)
+export const SKILL_COUNTS = { doubleFeed: 3, times2: 3, minus2: 3, flip: 3, digest: 2 } // total 14
 
 export function buildMainDeck() {
   const cards = []
@@ -32,19 +33,36 @@ export function buildMainDeck() {
     }
   }
 
-  // Skill cards, 3 copies each
-  for (const key of ['doubleFeed', 'times2', 'minus2', 'flip']) {
-    for (let i = 0; i < 3; i++) {
+  // Skill cards, per SKILL_COUNTS
+  for (const [key, n] of Object.entries(SKILL_COUNTS)) {
+    for (let i = 0; i < n; i++) {
       cards.push({ id: nextId(), type: 'skill', skill: key })
     }
   }
 
-  // Digest (-5), 2 copies
-  for (let i = 0; i < 2; i++) {
-    cards.push({ id: nextId(), type: 'skill', skill: 'digest' })
-  }
-
   return cards
+}
+
+// Full deck breakdown (count + probability) for the card codex.
+export function deckBreakdown() {
+  const total =
+    Object.values(FOOD_COUNTS).reduce((a, b) => a + b, 0) +
+    Object.values(SKILL_COUNTS).reduce((a, b) => a + b, 0)
+
+  const foods = [1, 2, 3, 4, 5].map((value) => ({
+    card: { type: 'food', value },
+    count: FOOD_COUNTS[value] ?? 0,
+    effect: `드래곤 포만감 +${value}`,
+  }))
+
+  const skills = Object.keys(SKILL_COUNTS).map((key) => ({
+    card: { type: 'skill', skill: key },
+    count: SKILL_COUNTS[key],
+    effect: SKILLS[key].desc,
+  }))
+
+  const withPct = (e) => ({ ...e, pct: total ? (e.count / total) * 100 : 0 })
+  return { total, foods: foods.map(withPct), skills: skills.map(withPct) }
 }
 
 // ---- Satiety deck --------------------------------------------------------
