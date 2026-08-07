@@ -22,7 +22,7 @@ export const RULES = {
   baseFoodPerTurn: 1,   // 기본 먹이 허용 수 (두번먹이기가 +1)
   roundsToEnd: 5,       // 몇 라운드 후 종료
   noFoodPenalty: 1,     // 먹이 못 냈을 때 패널티 드로우
-  overflowPenalty: 3,   // 포만감 초과 시 패널티 드로우
+  overflowPenalty: 3,   // 포만감 초과 시 패널티 드로우: 0 ~ 이 값 랜덤 (운 좋으면 0장!)
 }
 
 export const ROUNDS_TO_END = RULES.roundsToEnd
@@ -232,8 +232,16 @@ function resolveDragon(s, p) {
       pushLog(s, `🎯 딱 맞춤 보상! ${p.name}는 카드 1장을 골라 버릴 수 있어요.`, 'good')
     }
   } else {
-    const drew = drawN(s, p, RULES.overflowPenalty)
-    pushLog(s, `💥 포만감 초과! ${p.name}가 패널티로 ${drew}장을 뽑아요.`, 'bad')
+    // Random 0 ~ overflowPenalty — overflowing is now a gamble.
+    const n = Math.floor(Math.random() * (RULES.overflowPenalty + 1))
+    const drew = drawN(s, p, n)
+    pushLog(
+      s,
+      n === 0
+        ? `💥 포만감 초과! 그런데 ${p.name}는 운 좋게 패널티 0장! 😎`
+        : `💥 포만감 초과! ${p.name}가 패널티로 ${drew}장을 뽑아요.`,
+      'bad',
+    )
   }
   flipSatiety(s)
   pushLog(s, `새 포만감 카드: 드래곤 최대 ${s.dragon.max}`, 'system')

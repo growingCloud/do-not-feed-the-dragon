@@ -28,10 +28,13 @@ function aiDiscard(s) {
   discardReward(s, target.id)
 }
 
+// allowOverflow: with the 0~3 random penalty, overflowing (shed 1 card, draw ~1.5)
+// beats skipping (shed 0, draw 1), so smart AIs gamble on it when cornered
+// without a reducer, instead of skipping the food.
 const CONFIG = {
   easy: { useDoubleFeed: false, useTimes2Exact: false, makeRoom: false, foodPick: 'randomSafe', allowOverflow: true, dumpSkills: 'none' },
-  normal: { useDoubleFeed: true, useTimes2Exact: true, makeRoom: true, foodPick: 'largestSafe', allowOverflow: false, dumpSkills: 'race' },
-  hard: { useDoubleFeed: true, useTimes2Exact: true, makeRoom: true, foodPick: 'largestSafe', allowOverflow: false, dumpSkills: 'always' },
+  normal: { useDoubleFeed: true, useTimes2Exact: true, makeRoom: true, foodPick: 'largestSafe', allowOverflow: true, dumpSkills: 'race' },
+  hard: { useDoubleFeed: true, useTimes2Exact: true, makeRoom: true, foodPick: 'largestSafe', allowOverflow: true, dumpSkills: 'always' },
 }
 
 export function aiTakeTurn(s, difficulty = 'normal') {
