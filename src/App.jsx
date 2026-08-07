@@ -129,6 +129,14 @@ export default function App() {
     return () => clearTimeout(timer)
   }, [game?.lastPlay?.seq])
 
+  // Hold the active-seat highlight on the player who just acted until their
+  // flying card has landed, then advance it — so the border doesn't jump ahead
+  // of the animation.
+  const [displayActive, setDisplayActive] = useState(0)
+  useEffect(() => {
+    if (game && flyers.length === 0) setDisplayActive(game.current)
+  }, [game?.current, flyers.length])
+
   // Animation: dragon reacts (satisfied bounce / angry burst + screen shake).
   const [reaction, setReaction] = useState(null)
   useEffect(() => {
@@ -188,7 +196,7 @@ export default function App() {
 
       <GameTable
         players={game.players}
-        activeId={game.phase === 'playing' ? game.current : -1}
+        activeId={game.phase === 'playing' ? displayActive : -1}
         direction={game.direction}
         dragon={game.dragon}
         reaction={reaction}
